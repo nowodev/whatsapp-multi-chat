@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\MessageNotification;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -16,4 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     // return view('welcome');
     return view('home');
+});
+
+Route::get('event', function () {
+    MessageNotification::dispatch("This is our first broadcast message!");
+});
+
+Route::get('listen', function () {
+    return view('listen');
 });
