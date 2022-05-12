@@ -18,5 +18,11 @@
         "postcss": "^8.4.13",
         "pusher-js": "^7.1.0-beta",
         "tailwindcss": "^3.0.24"
+    },
+    "dependencies": {
+        "express": "^4.18.1",
+        "qrcode": "^1.5.0",
+        "socket.io": "^4.5.0",
+        "whatsapp-web.js": "^1.16.6"
     }
 }

@@ -10,18 +10,34 @@
             </button>
         </div>
 
-        <div class="bg-gray-400 w-64 h-64" id="qr"></div>
+        <canvas class="bg-gray-400 w-64 h-64" id="qr"></canvas>
     </div>
 </div>
 @endsection
 
 @section('scripts')
+<script src="{{ asset('/js/bundle.js') }}"></script>
+<script src="https://cdn.socket.io/4.0.1/socket.io.min.js" integrity="sha384-LzhRnpGmQP+lOvWruF/lgkcqD+WDVt9fU3H4BWmwP5u5LTmkUGafMcpZKNObVMLU" crossorigin="anonymous"></script>
 <script>
-    Echo.channel('barcode')
-        .listen('GenerateBarcode', (e) => {
-            console.log('This works!')
-            document.getElementById('qr').innerHTML = `<img src="https://qrcode.tec-it.com/API/QRCode?data=QR+Code+Generator+by+TEC-IT" />`;                
+// socket.IO config
+const config = {!! json_encode(config('socketio')) !!}
+// instantiate connection
+const socket = io(config.IP + ':' + config.PORT);
 
+// listent to qr
+socket.on('qr', (qr) => {
+    window.QRCode.toCanvas(document.getElementById("qr"), qr, function (error) {
+        if (error) {
+            alert("Failed to render QR");
+            return console.error(error);
+        }
     });
+});
+
+// update dom
+socket.on('ready', () => {
+    alert("Logged In successful!!!");
+    // remove the barcode and display 
+});
 </script>
 @endsection
