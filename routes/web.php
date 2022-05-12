@@ -1,5 +1,6 @@
 <?php
 
+use App\Events\GenerateBarcode;
 use App\Events\MessageNotification;
 use Illuminate\Support\Facades\Route;
 
@@ -18,10 +19,7 @@ Route::get('/', function () {
     return view('index');
 });
 
-Route::get('event', function () {
-    MessageNotification::dispatch("This is our first broadcast message!");
-});
 
-Route::get('listen', function () {
-    return view('listen');
+Route::post('generate', function () {
+    GenerateBarcode::dispatch('Barcode Generated!');
 });
