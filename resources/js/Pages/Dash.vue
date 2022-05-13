@@ -1,8 +1,7 @@
 <template>
-    <div class="flex items-center min-h-screen">
-        <div class="container mx-auto justify-center flex">
-            <div class="w-1/3 outline border items-center rounded grid grid-cols-1"
-                :class="showBarCode ? 'min-w-fit md:grid-cols-3' : ''">
+    <div class="flex min-h-screen">
+        <div class="w-full p-2 mx-auto justify-center flex">
+            <div class="w-full border-2 rounded grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
                 <div class="border-r border-gray-300 md:col-span-1">
                     <div class="mx-3 my-3">
                         <div class="relative text-gray-600">
@@ -55,24 +54,20 @@
                         </li>
                     </ul>
                 </div>
-                <div class="hidden md:col-span-2" :class="showBarCode ? 'md:block' : ''">
+                <div class="md:col-span-2 lg:col-span-3">
                     <div class="w-full">
                         <div
-                            class="relative w-full p-6 overflow-y-auto h-[32rem] items-center flex justify-center">
+                            class="relative w-full p-6 overflow-y-auto h-[32rem] items-center flex flex-col justify-center">
+                            <h3 ref="msg" class="animate-bounce font-bold text-lg">Hold on, trying
+                                to connect
+                                you......</h3>
                             <div class="relative w-64">
-                                <canvas class="bg-gray-400 w-64 h-64 rounded-lg relative"
+                                <canvas
+                                    class="animate-pulse bg-gray-600 w-64 h-64 rounded-lg relative"
                                     ref="qr"></canvas>
-
-                                <div v-show="!isLoaderHidden"
-                                    class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-                                    <svg xmlns="http://www.w3.org/2000/svg"
-                                        class="animate-spin w-8 fill-gray-700"
-                                        viewBox="0 0 512 512">
-                                        <path
-                                            d="M468.9 32.11c13.87 0 27.18 10.77 27.18 27.04v145.9c0 10.59-8.584 19.17-19.17 19.17h-145.7c-16.28 0-27.06-13.32-27.06-27.2c0-6.634 2.461-13.4 7.96-18.9l45.12-45.14c-28.22-23.14-63.85-36.64-101.3-36.64c-88.09 0-159.8 71.69-159.8 159.8S167.8 415.9 255.9 415.9c73.14 0 89.44-38.31 115.1-38.31c18.48 0 31.97 15.04 31.97 31.96c0 35.04-81.59 70.41-147 70.41c-123.4 0-223.9-100.5-223.9-223.9S132.6 32.44 256 32.44c54.6 0 106.2 20.39 146.4 55.26l47.6-47.63C455.5 34.57 462.3 32.11 468.9 32.11z" />
-                                    </svg>
-                                </div>
                             </div>
+                            <h3 ref="cnt" class="hidden animate-bounce font-bold text-lg">
+                                Connecting......</h3>
                         </div>
                     </div>
                 </div>
@@ -83,20 +78,22 @@
 
 <script>
 export default {
+    
     // socket.IO config
     props: ['config'],
 
     data() {
         return {
-            showBarCode: false,
-            isLoaderHidden: false,
+            userId: '05edee08-9164-40b3-a3ce-170333b44dda'
         };
+    },
+
+    created() {
+        this.navigate();
     },
 
     methods: {
         navigate: function () {
-            this.showBarCode = !this.showBarCode
-
             // instantiate connection
             const socket = io(this.config.IP + ':' + this.config.PORT);
 
@@ -112,12 +109,15 @@ export default {
                         return console.error(error);
                     }
                 });
-                this.isLoaderHidden = true;
+                this.$refs.qr.classList.remove('animate-pulse');
+                this.$refs.msg.classList.add('hidden');
+                this.$refs.cnt.classList.remove('hidden');
             });
 
             // update dom
             socket.on('ready', (chats) => {
-                this.$inertia.get(route('chat'))
+                console.log('works');
+                this.$inertia.get(route('chat', { id: this.userId, chats: chats }));
             });
         }
     },

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Foundation\Application;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -24,19 +25,23 @@ use Inertia\Inertia;
 //     ]);
 // });
 
-// Route::get('/dashboard', function () {
-//     return Inertia::render('Dashboard');
-// })->name('dashboard');
+Route::get('/dashboard', function () {
+    // return Inertia::render('Dashboard');
+    return view('index');
+})->name('dashboard');
 
 Route::get('/', function () {
     return Inertia::render('Home');
 })->name('home');
 
-Route::get('chat', function () {
-    return Inertia::render('Chat');
+Route::get('chat/{id}', function (Request $request) {
+    return Inertia::render('Chat', [
+        'config' => config('socketio'),
+        'chats' => $request->chats
+    ]);
 })->name('chat');
 
-Route::get('dash', function () {
+Route::get('dash/{id}', function () {
     return Inertia::render('Dash', [
         'config' => config('socketio')
     ]);

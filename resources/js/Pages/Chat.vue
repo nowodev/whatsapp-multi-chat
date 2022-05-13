@@ -4,12 +4,12 @@
             <div class="min-w-full border rounded grid grid-cols-1 md:grid-cols-3">
                 <div class="border-r border-gray-300 md:col-span-1">
                     <div class="mx-3 my-3 flex items-center space-x-5">
-                        <Link :href="route('dash')">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                <path stroke-linecap="round" stroke-linejoin="round"
-                                    d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                            </svg>
+                        <Link :href="route('dash', 1)">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                            <path stroke-linecap="round" stroke-linejoin="round"
+                                d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                        </svg>
                         </Link>
                         <div class="relative text-gray-600 w-full">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -25,49 +25,23 @@
                         </div>
                     </div>
 
-                    <ul class="overflow-auto h-[32rem]">
+                    <ul class="overflow-auto h-[40rem]">
                         <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
-                        <li>
-                            <a
-                                class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
-                                <img class="object-cover w-10 h-10 rounded-full"
-                                    src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
-                                    alt="username" />
-                                <div class="w-full pb-2">
-                                    <div class="flex justify-between">
-                                        <span class="block ml-2 font-semibold text-gray-600">Jhon
-                                            Don</span>
-                                        <span class="block ml-2 text-sm text-gray-600">25
-                                            minutes</span>
-                                    </div>
-                                    <span class="block ml-2 text-sm text-gray-600">bye</span>
-                                </div>
-                            </a>
-                            <a
-                                class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out bg-gray-100 border-b border-gray-300 cursor-pointer focus:outline-none">
-                                <img class="object-cover w-10 h-10 rounded-full"
-                                    src="https://cdn.pixabay.com/photo/2016/06/15/15/25/loudspeaker-1459128__340.png"
-                                    alt="username" />
-                                <div class="w-full pb-2">
-                                    <div class="flex justify-between">
-                                        <span
-                                            class="block ml-2 font-semibold text-gray-600">Same</span>
-                                        <span class="block ml-2 text-sm text-gray-600">50
-                                            minutes</span>
-                                    </div>
-                                    <span class="block ml-2 text-sm text-gray-600">Good night</span>
-                                </div>
-                            </a>
-                            <a @click="navigate()"
+                        <li v-for="(c, index) in chats" :key="index">
+                            <a @click="selectChat(c.id._serialized)"
                                 class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
                                 <img class="object-cover w-10 h-10 rounded-full"
                                     src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg"
                                     alt="username" />
                                 <div class="w-full pb-2">
                                     <div class="flex justify-between">
+                                        <span class="block ml-2 font-semibold text-gray-600">{{
+                                                c.name
+                                        }}</span>
                                         <span
-                                            class="block ml-2 font-semibold text-gray-600">Emma</span>
-                                        <span class="block ml-2 text-sm text-gray-600">6 hour</span>
+                                            class="block ml-2 text-sm text-gray-600 bg-green-600 font-bold rounded-full">{{
+                                                    c.unreadCount
+                                            }}</span>
                                     </div>
                                     <span class="block ml-2 text-sm text-gray-600">Good
                                         Morning</span>
@@ -76,44 +50,33 @@
                         </li>
                     </ul>
                 </div>
-                <div class="hidden md:col-span-2 md:block">
+                <div v-show="selectedChat" class="hidden md:col-span-2 md:block">
                     <div class="w-full">
                         <div class="relative flex items-center p-3 border-b border-gray-300">
                             <img class="object-cover w-10 h-10 rounded-full"
                                 src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg"
                                 alt="username" />
-                            <span class="block ml-2 font-bold text-gray-600">Emma</span>
+                            <span class="block ml-2 font-bold text-gray-600">{{ selectedChat?.name
+                            }}</span>
                             <span class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                             </span>
                         </div>
                         <div>
                             <div class="relative w-full p-6 overflow-y-auto h-[40rem]">
                                 <ul class="space-y-2">
-                                    <li class="flex justify-start">
+                                    <li v-for="(received, index) in receivedMessages" :key="index"
+                                        class="flex justify-start">
                                         <div
                                             class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
-                                            <span class="block">Hi</span>
+                                            <span class="block">{{ received.body }}</span>
                                         </div>
                                     </li>
-                                    <li class="flex justify-end">
+
+                                    <li v-for="(sent, index) in messages" :key="index"
+                                        class="flex justify-end">
                                         <div
                                             class="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded shadow">
-                                            <span class="block">Hiiii</span>
-                                        </div>
-                                    </li>
-                                    <li class="flex justify-end">
-                                        <div
-                                            class="relative max-w-xl px-4 py-2 text-gray-700 bg-gray-100 rounded shadow">
-                                            <span class="block">how are you?</span>
-                                        </div>
-                                    </li>
-                                    <li class="flex justify-start">
-                                        <div
-                                            class="relative max-w-xl px-4 py-2 text-gray-700 rounded shadow">
-                                            <span class="block">Lorem ipsum dolor sit, amet
-                                                consectetur
-                                                adipisicing elit.
-                                            </span>
+                                            <span class="block">{{ sent }}</span>
                                         </div>
                                     </li>
                                 </ul>
@@ -122,20 +85,25 @@
 
                         <div
                             class="flex items-center justify-between w-full p-3 border-t border-gray-300">
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-8 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
-                                </svg>
-                            </button>
+                            <div class="relative flex w-10 items-center overflow-hidden">
+                                <button class="absolute">
+                                    <svg xmlns="http://www.w3.org/2000/svg"
+                                        class="w-8 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            stroke-width="2"
+                                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                                    </svg>
+                                </button>
+
+                                <input type="file" ref="file"
+                                    class="cursor-pointer h-full w-full opacity-0" name="">
+                            </div>
 
                             <input type="text" placeholder="Message"
                                 class="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
-                                name="message" required />
-                            <button type="submit">
+                                v-model="msgInput" required />
+                            <button type="submit" @click="send(selectedChat?.id._serialized)">
                                 <svg class="w-8 text-gray-500 origin-center transform rotate-90"
                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
@@ -153,32 +121,112 @@
 
 <script>
 import { Link } from "@inertiajs/inertia-vue3";
+import VueSocketIO from 'vue-socket.io'
+
 export default {
     components: {
-        Link
+        Link,
+        VueSocketIO
+    },
+
+
+    sockets: {
+        connect: function () {
+            console.log('socket connected')
+        },
+        customEmit: function (data) {
+            console.log('this method was fired by the socket server. eg: io.emit("customEmit", data)')
+        }
+    },
+
+    props: {
+        config: Object,
+        chats: Object,
     },
 
     data() {
         return {
-            classes: null,
+            receivedMessages: [],
+            // sentMessages: [],
+            msgInput: null,
+            selectedChat: null,
             messages: []
         };
     },
 
+
+    created() {
+        const socket = io(this.config.IP + ':' + this.config.PORT);
+
+        socket.on('message', (message) => {
+            this.receivedMessages.push(message);
+        });
+
+        // listen to message_ack
+        // socket.on('message_ack', (message) => {
+        //     this.messages.push(message)
+        // });
+
+        socket.on('listMessages', (data) => {
+            // this.messages = data;
+            console.log('List Message: ' + data);
+        });
+
+        // listen to media upload
+        socket.on('media_uploaded', (message) => {
+            console.log('Media: ' + message);
+        });
+    },
+
     methods: {
-        navigate: function () {
-            socket.on('listMessages', (data) => {
-                this.messages = data;
+        selectChat: function (chatId) {
+            const socket = io(this.config.IP + ':' + this.config.PORT);
 
-            });
+            const found = this.chats.find(x => x.id._serialized === chatId);
 
-            // listen to message_ack
-            socket.on('message_ack', (message) => {
-                this.messages.push(message)
-            });
+            this.selectedChat = found;
 
-            this.socket.emit('fetchMessages', chatId)
-            console.log(this.classes);
+            // emit not working
+            socket.emit('fetchMessages', { chatId: chatId })
+        },
+
+        send: function (userId) {
+            const socket = io(this.config.IP + ':' + this.config.PORT);
+
+            const file = this.$refs.file.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+
+                reader.readAsDataURL(file);
+
+                reader.onload = function () {
+                    var startIndex = reader.result.indexOf("base64,") + 7;
+
+                    socket.emit('sendMessage', {
+                        chatId: userId,
+                        mimetype: file.type,
+                        data: reader.result.substr(startIndex)
+                    })
+                };
+
+                reader.onerror = function (error) {
+                    console.log('Error: ', error);
+                };
+
+            } else {
+                // not the ideal thing to use but when using on('message_ack')
+                //  output is duplicated
+                this.messages.push(this.msgInput)
+
+                // emit not working
+                socket.emit('sendMessage', {
+                    chatId: userId,
+                    data: this.msgInput
+                });
+            }
+
+            this.msgInput = null;
         }
     }
 }
