@@ -11,7 +11,7 @@ io.on('connection', (socket) => {
     socket.on('init', async ({userId} = data) => {
         const client = new Client({
             puppeteer: {
-                headless: true
+                headless: false
             },
             authStrategy: new LocalAuth({
                 clientId: userId,
@@ -50,7 +50,6 @@ io.on('connection', (socket) => {
 
         // on disconnected
         client.on('disconnected', (data) => {
-            console.log(data);
             io.emit('destroy', data)
         });
 
@@ -66,6 +65,16 @@ io.on('connection', (socket) => {
             }
 
             client.sendMessage(data.chatId, data.data);
+        });
+
+        // fetch Messages
+        socket.on('fetchMessage', async (data) => {
+
+            const chat = await client.getChatById(data.chatId);
+
+            io.emit('listMessages', chat.fetchMessages({
+                limit: 50
+            }));
         });
 
         // close

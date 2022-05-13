@@ -116,7 +116,7 @@ export default {
             });
 
             // update dom
-            socket.on('ready', () => {
+            socket.on('ready', (chats) => {
                 this.$inertia.get(route('chat'))
             });
         }

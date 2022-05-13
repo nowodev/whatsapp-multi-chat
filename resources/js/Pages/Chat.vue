@@ -160,12 +160,24 @@ export default {
 
     data() {
         return {
-            classes: null
+            classes: null,
+            messages: []
         };
     },
 
     methods: {
         navigate: function () {
+            socket.on('listMessages', (data) => {
+                this.messages = data;
+
+            });
+
+            // listen to message_ack
+            socket.on('message_ack', (message) => {
+                this.messages.push(message)
+            });
+
+            this.socket.emit('fetchMessages', chatId)
             console.log(this.classes);
         }
     }
