@@ -33,7 +33,11 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('chat', function () {
-    return Inertia::render('Chat', [
+    return Inertia::render('Chat');
+})->name('chat');
+
+Route::get('dash', function () {
+    return Inertia::render('Dash', [
         'config' => config('socketio')
     ]);
-})->name('chat');
+})->name('dash');
