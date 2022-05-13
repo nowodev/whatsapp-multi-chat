@@ -1,32 +1,77 @@
-const { Client } = require('whatsapp-web.js');
+const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     cors: { origin: "*"}
 });
-const client = new Client({
-    puppeteer: {
-        headless: false,
-    }
-});
 
 io.on('connection', (socket) => {
-    // init client
-    client.initialize();
+    socket.on('init', async ({userId} = data) => {
+        const client = new Client({
+            puppeteer: {
+                headless: false
+            },
+            authStrategy: new LocalAuth({
+                clientId: userId,
+                dataPath: `public/storage/whatsapp/${userId}`
+            })
+        });
 
-    client.on('qr', (qr) => {
-        // Generate and scan this code with your phone
-        socket.broadcast.emit('qr', qr);
-    });
+        // on qr
+        client.on('qr', (qr) => {
+           io.emit('qr', qr);
+        });
 
-    client.on('ready', async () => {
-        socket.broadcast.emit('ready');
-    });
+        // on ready
+        client.on('ready', async () => {
+            // get chats
+            const chats = await client.getChats();
 
-    socket.on('disconnect', (socket) => {
-        // destroy client
-        client.destroy();
+            // send chats
+            io.emit('ready', chats);
+        });
+
+        // on message
+        client.on('message', (message) => {
+            io.emit('message', message);
+        });
+
+        // on message
+        client.on('message_ack', (message) => {
+            io.emit('message_ack', message);
+        });
+
+        // on media uploaded
+        client.on('media_uploaded', (message) => {
+            io.emit('media_uploaded', message);
+        });
+
+        // on disconnected
+        client.on('disconnected', (data) => {
+            console.log(data);
+            io.emit('destroy', data)
+        });
+
+        // init
+        client.initialize();
+
+        // sendMessage
+        socket.on('sendMessage', (data) => {
+
+            if(data.mimetype) {
+                const media = new MessageMedia(data.mimetype, data.data)
+                return client.sendMessage(data.chatId, media);
+            }
+
+            client.sendMessage(data.chatId, data.data);
+        });
+
+        // close
+        socket.on('disconnect', async () => {
+            // close client
+            client.destroy();
+        });
     });
 });
 

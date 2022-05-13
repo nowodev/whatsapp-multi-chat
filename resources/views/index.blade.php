@@ -16,7 +16,9 @@
                     <textarea id="message" name="message"
                         class="w-full bg-white rounded border border-gray-300 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200 h-32 text-base outline-none text-gray-700 py-1 px-3 resize-none leading-6 transition-colors duration-200 ease-in-out"></textarea>
                 </div>
+                <input type="file" id="file" />
                 <button
+                    id="send"
                     class="text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Send</button>
             </div>
         </div>
@@ -36,7 +38,11 @@ const config = {!! json_encode(config('socketio')) !!}
 // instantiate connection
 const socket = io(config.IP + ':' + config.PORT);
 
-// listent to qr
+socket.emit('init', {
+    userId: 'd1a2a642-481d-42c7-8779-03e74844ce17'
+});
+
+// listen to qr
 socket.on('qr', (qr) => {
     window.QRCode.toCanvas(document.getElementById("qr"), qr, function (error) {
         if (error) {
@@ -46,12 +52,59 @@ socket.on('qr', (qr) => {
     });
 });
 
+// listen to messages
+socket.on('message', (message) => {
+    console.log(message);
+});
+
+// listen to message_ack
+socket.on('message_ack', (message) => {
+    console.log(message);
+});
+
+// listen to media upload
+socket.on('media_uploaded', (message) => {
+    console.log(message);
+});
+
+// listen destory
+socket.on('destroy', (data) => {
+    console.log(data);
+});
+
 // update dom
-socket.on('ready', () => {
+socket.on('ready', (data) => {
+    console.log(data);
     // alert("Logged In successful!!!");
     document.getElementById('chatbox').classList.remove('hidden')
     document.getElementById('qr').classList.add('hidden')
     // remove the barcode and display
+});
+
+document.querySelector('#file').addEventListener('change', function() {
+    const file = document.querySelector('input[type="file"]').files[0];
+
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = function () {
+        var startIndex = reader.result.indexOf("base64,") + 7;
+
+        socket.emit('sendMessage', {
+            chatId: '2347085885630@c.us',
+            mimetype: file.type,
+            data: reader.result.substr(startIndex)
+        })
+    };
+    reader.onerror = function (error) {
+        console.log('Error: ', error);
+    };
+});
+
+document.querySelector('#send').addEventListener('click', function() {
+    socket.emit('sendMessage', {
+        chatId: '2347085885630@c.us',
+        data: document.querySelector('#message').value
+    })
 });
 </script>
 @endsection
