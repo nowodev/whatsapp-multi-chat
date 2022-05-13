@@ -101,6 +101,8 @@ export default {
             // if (auth) {
             //     this.$inertia.get(route('chat'))
             // } else {
+            //     this.showBarCode = !this.showBarCode
+            //
             //     instantiate connection
             // }
 
@@ -120,7 +122,7 @@ export default {
 
             // update dom
             socket.on('ready', () => {
-                this.$inertia.get(route('home'))
+                this.$inertia.get(route('chat'))
             });
         }
     },

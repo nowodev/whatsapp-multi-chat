@@ -3,8 +3,15 @@
         <div class="container mx-auto shadow-xl">
             <div class="min-w-full border rounded grid grid-cols-1 md:grid-cols-3">
                 <div class="border-r border-gray-300 md:col-span-1">
-                    <div class="mx-3 my-3">
-                        <div class="relative text-gray-600">
+                    <div class="mx-3 my-3 flex items-center space-x-5">
+                        <Link :href="route('dash')">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                            </svg>
+                        </Link>
+                        <div class="relative text-gray-600 w-full">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-2">
                                 <svg fill="none" stroke="currentColor" stroke-linecap="round"
                                     stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24"
@@ -117,16 +124,7 @@
                             class="flex items-center justify-between w-full p-3 border-t border-gray-300">
                             <button>
                                 <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-6 h-6 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                            </button>
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
+                                    class="w-8 text-gray-500" fill="none" viewBox="0 0 24 24"
                                     stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         stroke-width="2"
@@ -137,17 +135,8 @@
                             <input type="text" placeholder="Message"
                                 class="block w-full py-2 pl-4 mx-3 bg-gray-100 rounded-full outline-none focus:text-gray-700"
                                 name="message" required />
-                            <button>
-                                <svg xmlns="http://www.w3.org/2000/svg"
-                                    class="w-5 h-5 text-gray-500" fill="none" viewBox="0 0 24 24"
-                                    stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        stroke-width="2"
-                                        d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                </svg>
-                            </button>
                             <button type="submit">
-                                <svg class="w-5 h-5 text-gray-500 origin-center transform rotate-90"
+                                <svg class="w-8 text-gray-500 origin-center transform rotate-90"
                                     xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"
                                     fill="currentColor">
                                     <path
@@ -163,7 +152,12 @@
 </template>
 
 <script>
+import { Link } from "@inertiajs/inertia-vue3";
 export default {
+    components: {
+        Link
+    },
+
     data() {
         return {
             classes: null
