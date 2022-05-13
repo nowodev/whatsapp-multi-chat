@@ -28,6 +28,7 @@
         "vue-loader": "^17.0.0"
     },
     "dependencies": {
+        "dotenv": "^16.0.1",
         "express": "^4.18.1",
         "qrcode": "^1.5.0",
         "socket.io": "^4.5.0",

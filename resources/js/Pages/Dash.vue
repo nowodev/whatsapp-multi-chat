@@ -97,17 +97,12 @@ export default {
         navigate: function () {
             this.showBarCode = !this.showBarCode
 
-            // check if user is authenticated
-            // if (auth) {
-            //     this.$inertia.get(route('chat'))
-            // } else {
-            //     this.showBarCode = !this.showBarCode
-            //
-            //     instantiate connection
-            // }
-
             // instantiate connection
             const socket = io(this.config.IP + ':' + this.config.PORT);
+
+            socket.emit('init', {
+                userId: '05edee08-9164-40b3-a3ce-170333b44dda'
+            });
 
             // listent to qr
             socket.on('qr', (qr) => {

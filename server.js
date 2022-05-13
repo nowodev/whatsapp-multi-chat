@@ -5,12 +5,13 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     cors: { origin: "*"}
 });
+const process = require('dotenv').config().parsed;
 
 io.on('connection', (socket) => {
     socket.on('init', async ({userId} = data) => {
         const client = new Client({
             puppeteer: {
-                headless: false
+                headless: true
             },
             authStrategy: new LocalAuth({
                 clientId: userId,
@@ -75,7 +76,6 @@ io.on('connection', (socket) => {
     });
 });
 
-
-server.listen(3009, () => {
-    console.log('Server is running');
+server.listen(process.SOCKET_IO_PORT, () => {
+    console.log('Server is running on port:', process.SOCKET_IO_PORT);
 });
