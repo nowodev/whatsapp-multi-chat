@@ -1,8 +1,8 @@
 <?php
 
-use App\Events\GenerateBarcode;
-use App\Events\MessageNotification;
+use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 
 /*
 |--------------------------------------------------------------------------
@@ -15,11 +15,29 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
+
+// Route::get('/dashboard', function () {
+//     return Inertia::render('Dashboard');
+// })->name('dashboard');
+
 Route::get('/', function () {
-    return view('index');
-});
+    return Inertia::render('Home');
+})->name('home');
 
+Route::get('chat', function () {
+    return Inertia::render('Chat');
+})->name('chat');
 
-Route::post('generate', function () {
-    GenerateBarcode::dispatch('Barcode Generated!');
-});
+Route::get('dash', function () {
+    return Inertia::render('Dash', [
+        'config' => config('socketio')
+    ]);
+})->name('dash');
