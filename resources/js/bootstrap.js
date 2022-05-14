@@ -27,6 +27,9 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     forceTLS: true
 // });
 
-// const process = require('dotenv').config().parsed;
+import io from 'socket.io-client';
 
-// MIX_SOCKET_IO_HOST
+const SOCKETIO_HOST = process.env.MIX_SOCKETIO_HOST;
+const SOCKETIO_PORT = process.env.MIX_SOCKETIO_PORT;
+
+window.SocketIO = io(`${SOCKETIO_HOST}:${SOCKETIO_PORT}`)

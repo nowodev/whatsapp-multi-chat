@@ -38,10 +38,10 @@
                                         <span class="block ml-2 font-semibold text-gray-600">{{
                                                 c.name
                                         }}</span>
-                                        <span
+                                        <!-- <span
                                             class="block ml-2 text-sm w-5 text-center font-black text-black rounded-full">{{
                                                     c.unreadCount
-                                            }}</span>
+                                            }}</span> -->
                                     </div>
                                     <!-- <span class="block ml-2 text-sm text-gray-600">Good
                                         Morning</span> -->

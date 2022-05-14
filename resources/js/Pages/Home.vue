@@ -17,7 +17,7 @@ import ModelsList from '@/components/ModelsList.vue'
 import { defineComponent } from '@vue/runtime-core';
 
 // instantiate connection
-const socket = io('localhost:3001');
+const socket = window.SocketIO;
 
 export default defineComponent({
     components: { ModelsList, ChatList },
@@ -54,8 +54,6 @@ export default defineComponent({
             this.messages[index] = message;
 
             this.updateChat(message);
-
-            this.scrollToTop()
         });
 
         // listen to media upload
@@ -86,10 +84,12 @@ export default defineComponent({
         navigate: function (user) {
             // instantiate connection
             if (this.authenticated === false && this.user.id !== user.id) {
+                this.user = user;
+
                 if (this.user.id) {
                     socket.emit('destroy')
-                    console.log('Destroyed');
                 }
+
 
                 socket.emit('init', {
                     userId: user.id
@@ -113,7 +113,6 @@ export default defineComponent({
                 socket.on('ready', (chats) => {
                     console.log(chats);
                     this.authenticated = true;
-                    this.user = user;
                     this.chats = chats;
                 });
             } else {
@@ -135,23 +134,11 @@ export default defineComponent({
             if (message instanceof File) {
                 let file = message
 
-                const reader = new FileReader();
-
-                reader.readAsDataURL(message);
-
-                reader.onload = function () {
-                    var startIndex = reader.result.indexOf("base64,") + 7;
-
-                    socket.emit('sendMessage', {
+                socket.emit('sendMessage', {
                         chatId: id,
-                        mimetype: file.type,
+                        filePath: URL.createObjectURL(message),
                         data: reader.result.substr(startIndex)
-                    })
-                };
-
-                reader.onerror = function (error) {
-                    console.log('Error: ', error);
-                };
+                });
 
             } else {
                 socket.emit('sendMessage', {

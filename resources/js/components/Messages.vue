@@ -7,8 +7,8 @@
                         :src="selectedChat?.profilePic"
                         alt="username" />
                     <span class="block ml-2 font-bold text-gray-600">{{ selectedChat?.name }}</span>
-                    <span class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
-                    </span>
+                    <!-- <span class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
+                    </span> -->
                 </div>
 
                 <div class="relative h-full w-full p-6">

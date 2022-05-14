@@ -1,31 +1,75 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 
-const app = require('express')();
-const server = require('http').createServer(app);
-const io = require('socket.io')(server, {
+const chromeLauncher = require('chrome-launcher');
+const util           = require('util');
+const path           = require('path');
+const fs           = require('fs');
+const request        = require('request');
+const app            = require('express')();
+const server         = require('http').createServer(app);
+const io             = require('socket.io')(server, {
     cors: { origin: "*"}
 });
-const process = require('dotenv').config().parsed;
+const process        = require('dotenv').config().parsed;
 
 io.on('connection', (socket) => {
     socket.on('init', async ({userId} = data) => {
+        let config = {};
+        const dataPath = `public/storage/whatsapp/${userId}`;
+        const dirPath = path.resolve(`${dataPath}/session-${userId}`);
+
+
+        if(fs.existsSync(dirPath)) {
+            config = {
+                userDataDir: dirPath,
+            };
+        }
+
+        await chromeLauncher.killAll();
+        const chrome       = await chromeLauncher.launch({
+            ...config,
+            chromeFlags: [
+            // "--headless",
+            "--disabled-setupid-sandbox"]});
+        const resp = await util.promisify(request)(`http://localhost:${chrome.port}/json/version`);
+        const {webSocketDebuggerUrl} = JSON.parse(resp.body);
         const client = new Client({
             puppeteer: {
-                headless: false
+                headless: false,
+                browserWSEndpoint: webSocketDebuggerUrl
             },
             authStrategy: new LocalAuth({
                 clientId: userId,
-                dataPath: `public/storage/whatsapp/${userId}`
+                dataPath
             })
         });
+        const fetchMessage = async (data) => {
+            const chat = await client.getChatById(data.chatId);
 
-        // on qr
-        client.on('qr', (qr) => {
-           io.emit('qr', qr);
-        });
+            const messages = await chat.fetchMessages({
+                limit: 50
+            });
 
-        // on ready
-        client.on('ready', async () => {
+            io.emit('listMessages', messages);
+        };
+        const sendMessage = (data) => {
+            console.log('send messages');
+
+            if(data.filePath) {
+                const media = MessageMedia.fromUrl(data.filePath);
+                return client.sendMessage(data.chatId, media);
+            }
+
+            client.sendMessage(data.chatId, data.data);
+        };
+        const qr = (qr) => {
+            console.log('qr');
+
+            io.emit('qr', qr);
+        };
+        const ready = async () => {
+            console.log('ready');
+
             // get chats
             const chats = await client.getChats();
 
@@ -37,70 +81,39 @@ io.on('connection', (socket) => {
 
             // send chats
             io.emit('ready', chats);
-        });
-
-        // on message
-        client.on('message', async (message) => {
+        };
+        const message = async (message) => {
             message.chat = await message.getChat();
             io.emit('message', message);
-        });
-
-        // on message
-        client.on('message_ack', async (message) => {
+        };
+        const message_ack = async (message) => {
             message.chat = await message.getChat();
             io.emit('message_ack', message);
-        });
-
-        // on media uploaded
-        client.on('media_uploaded', (message) => {
+        };
+        const media_uploaded = (message) => {
             io.emit('media_uploaded', message);
-        });
+        };
 
-        // on disconnected
-        client.on('disconnected', (data) => {
-            io.emit('destroy', data)
-        });
-
+        // on qr
+        client.on('qr', qr);
+        // on ready
+        client.on('ready', ready);
+        // on message
+        client.on('message', message);
+        // on message
+        client.on('message_ack', message_ack);
+        // on media uploaded
+        client.on('media_uploaded', media_uploaded);
         // init
         client.initialize();
 
         // sendMessage
-        socket.on('sendMessage', (data) => {
-
-            if(data.mimetype) {
-                const media = new MessageMedia(data.mimetype, data.data)
-                return client.sendMessage(data.chatId, media);
-            }
-
-            client.sendMessage(data.chatId, data.data);
-        });
-
+        socket.on('sendMessage', sendMessage);
         // fetch Messages
-        socket.on('fetchMessage', async (data) => {
-
-            const chat = await client.getChatById(data.chatId);
-
-            const messages = await chat.fetchMessages({
-                limit: 50
-            });
-
-            io.emit('listMessages', messages);
-        });
-
-        // close
-        socket.on('destroy', async () => {
-            // close client
-            client.destroy();
-        });
-
-        // close
-        socket.on('disconnect', async () => {
-            // close client
-            client.destroy();
-        });
+        socket.on('fetchMessage', fetchMessage);
     });
 });
 
-server.listen(3001, () => {
-    console.log('Server is running on port:', 3001);
+server.listen(process.SOCKETIO_PORT, () => {
+    console.log('Server is running on port:', process.SOCKETIO_PORT);
 });
