@@ -21,7 +21,7 @@
                     <ul class="overflow-auto h-[32rem]">
                         <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Accounts</h2>
                         <li>
-                            <a @click="navigate()"
+                            <a @click="$emit('navigate')"
                                 class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-y border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
                                 <img class="object-cover w-10 h-10 rounded-full"
                                     src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
@@ -76,46 +76,9 @@
     </div>
 </template>
 
+
 <script>
 export default {
-    
-    // socket.IO config
-    props: ['config'],
-
-    data() {
-        return {
-            userId: '05edee08-9164-40b3-a3ce-170333b44dda'
-        };
-    },
-
-    methods: {
-        navigate: function () {
-            // instantiate connection
-            const socket = io(this.config.IP + ':' + this.config.PORT);
-
-            socket.emit('init', {
-                userId: '05edee08-9164-40b3-a3ce-170333b44dda'
-            });
-
-            // listent to qr
-            socket.on('qr', (qr) => {
-                window.QRCode.toCanvas(this.$refs.qr, qr, function (error) {
-                    if (error) {
-                        alert("Failed to render QR");
-                        return console.error(error);
-                    }
-                });
-                this.$refs.qr.classList.remove('animate-pulse');
-                this.$refs.msg.classList.add('hidden');
-                this.$refs.cnt.classList.remove('hidden');
-            });
-
-            // update dom
-            socket.on('ready', (chats) => {
-                console.log('works');
-                this.$inertia.get(route('chat', { id: this.userId, chats: chats }));
-            });
-        }
-    },
+    name: 'ModelsList',
 }
 </script>
