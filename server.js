@@ -68,6 +68,9 @@ io.on('connection', (socket) => {
 
             io.emit('qr', qr);
         };
+        const authenticated = async () => {
+            io.emit('authenticated', 'Whatsapp Authenticated!');
+        };
         const ready = async () => {
             console.log('ready');
 
@@ -107,6 +110,8 @@ io.on('connection', (socket) => {
         client.on('media_uploaded', media_uploaded);
         // init
         client.initialize();
+        // authenticated
+        client.on('authenticated', authenticated);
 
         // sendMessage
         socket.on('sendMessage', sendMessage);

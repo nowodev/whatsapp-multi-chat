@@ -1,5 +1,5 @@
 <template>
-    <div v-show="selectedChat" class="md:col-span-2 lg:col-span-3 md:block">
+    <div class="md:col-span-2 lg:col-span-3 md:block">
         <div class="flex flex-col h-full">
             <div class="flex flex-1 flex-col">
                 <div class="relative flex items-center p-3 border-b border-gray-300">

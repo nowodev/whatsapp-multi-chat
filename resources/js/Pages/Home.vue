@@ -84,12 +84,14 @@ export default defineComponent({
             // show message on home page
             this.$refs.model.$refs.msg.classList.remove('hidden');
             this.$refs.model.$refs.qr.classList.add('hidden');
+            this.$refs.model.$refs.waitMsg.classList.add('hidden');
+            this.$refs.model.$refs.success.classList.add('hidden');
         },
 
         navigate: function (user) {
             // remove message on home page and show barcode
             this.$refs.model.$refs.msg.classList.add('hidden');
-            this.$refs.model.$refs.qr.classList.remove('hidden');
+            this.$refs.model.$refs.waitMsg.classList.remove('hidden');
 
             // instantiate connection
             if (this.authenticated === false && this.user.uuid !== user.uuid) {
@@ -112,8 +114,14 @@ export default defineComponent({
                         }
                     });
 
-                    this.$refs.model.$refs.qr.classList.remove('animate-pulse');
-                    this.$refs.model.$refs.connMsg.classList.remove('hidden');
+                    this.$refs.model.$refs.waitMsg.classList.add('hidden');
+                    this.$refs.model.$refs.qr.classList.remove('hidden');
+                });
+
+                socket.on('authenticated', () => {
+                    this.$refs.model.$refs.success.classList.remove('hidden');
+                    this.$refs.model.$refs.qr.classList.add('hidden');
+                    this.$refs.model.$refs.waitMsg.classList.add('hidden');
                 });
 
                 // update dom

@@ -40,20 +40,23 @@
                         <div
                             class="relative w-full p-6 overflow-y-auto h-[32rem] items-center flex flex-col justify-center">
                             <div class="relative w-64">
-                                <canvas
-                                    class="hidden animate-pulse bg-gray-600 w-64 h-64 rounded-lg relative"
+                                <canvas class="hidden bg-gray-600 w-64 h-64 rounded-lg relative"
                                     ref="qr"></canvas>
                             </div>
 
-                            <!-- display when trying to authenticate user -->
-                            <h3 ref="connMsg"
-                                class="hidden animate-bounce mt-2 text-center font-bold text-lg">
-                                Connecting
+                            <!-- display when user is authenticated/unauthenticated -->
+                            <h3 ref="msg" class="font-bold text-lg">
+                                Click on profile to proceed...
                             </h3>
 
-                            <!-- display when user is authenticated/unauthenticated -->
-                            <h3 ref="msg" class="animate-bounce font-bold text-lg">
-                                Click on chat to proceed
+                            <!-- display when checking authentication status -->
+                            <h3 ref="waitMsg" class="hidden animate-bounce font-bold text-lg">
+                                Please wait while we try to authenticate...
+                            </h3>
+
+                            <!-- display when authenticated succesfully -->
+                            <h3 ref="success" class="hidden animate-bounce font-bold text-lg">
+                                Authenticated successfully, loading chats...
                             </h3>
                         </div>
                     </div>
