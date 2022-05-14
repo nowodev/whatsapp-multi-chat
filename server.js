@@ -5,6 +5,7 @@ const util = require('util');
 const path = require('path');
 const fs = require('fs');
 const request = require('request');
+const { disconnect } = require('process');
 const app = require('express')();
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
@@ -94,6 +95,9 @@ io.on('connection', (socket) => {
         const media_uploaded = (message) => {
             io.emit('media_uploaded', message);
         };
+        const destroy = async () => {
+            await chromeLauncher.killAll();
+        };
 
         // on qr
         client.on('qr', qr);
@@ -112,6 +116,8 @@ io.on('connection', (socket) => {
         socket.on('sendMessage', sendMessage);
         // fetch Messages
         socket.on('fetchMessage', fetchMessage);
+        // close
+        socket.on('disconnect', destroy);
     });
 });
 
