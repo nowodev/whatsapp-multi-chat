@@ -1,38 +1,39 @@
 const { Client, LocalAuth, MessageMedia } = require('whatsapp-web.js');
 
 const chromeLauncher = require('chrome-launcher');
-const util           = require('util');
-const path           = require('path');
-const fs           = require('fs');
-const request        = require('request');
-const app            = require('express')();
-const server         = require('http').createServer(app);
-const io             = require('socket.io')(server, {
-    cors: { origin: "*"}
+const util = require('util');
+const path = require('path');
+const fs = require('fs');
+const request = require('request');
+const app = require('express')();
+const server = require('http').createServer(app);
+const io = require('socket.io')(server, {
+    cors: { origin: "*" }
 });
-const process        = require('dotenv').config().parsed;
+const process = require('dotenv').config().parsed;
 
 io.on('connection', (socket) => {
-    socket.on('init', async ({userId} = data) => {
+    socket.on('init', async ({ userId } = data) => {
         let config = {};
         const dataPath = `public/storage/whatsapp/${userId}`;
         const dirPath = path.resolve(`${dataPath}/session-${userId}`);
 
 
-        if(fs.existsSync(dirPath)) {
+        if (fs.existsSync(dirPath)) {
             config = {
                 userDataDir: dirPath,
             };
         }
 
         await chromeLauncher.killAll();
-        const chrome       = await chromeLauncher.launch({
+        const chrome = await chromeLauncher.launch({
             ...config,
             chromeFlags: [
-            // "--headless",
-            "--disabled-setupid-sandbox"]});
+                // "--headless",
+                "--disabled-setupid-sandbox"]
+        });
         const resp = await util.promisify(request)(`http://localhost:${chrome.port}/json/version`);
-        const {webSocketDebuggerUrl} = JSON.parse(resp.body);
+        const { webSocketDebuggerUrl } = JSON.parse(resp.body);
         const client = new Client({
             puppeteer: {
                 headless: false,
@@ -55,7 +56,7 @@ io.on('connection', (socket) => {
         const sendMessage = (data) => {
             console.log('send messages');
 
-            if(data.filePath) {
+            if (data.filePath) {
                 const media = MessageMedia.fromUrl(data.filePath);
                 return client.sendMessage(data.chatId, media);
             }
@@ -76,7 +77,7 @@ io.on('connection', (socket) => {
             for (let chat of chats) {
                 let contact = await chat.getContact();
                 profilePic = await contact.getProfilePicUrl();
-                chat.profilePic = profilePic ?? '/img/avatar.png';
+                chat.profilePic = profilePic ? profilePic : 'img/avatar.png'
             }
 
             // send chats

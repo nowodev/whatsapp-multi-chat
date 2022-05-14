@@ -39,16 +39,22 @@
                     <div class="w-full">
                         <div
                             class="relative w-full p-6 overflow-y-auto h-[32rem] items-center flex flex-col justify-center">
-                            <h3 ref="msg" class="animate-bounce font-bold text-lg">Hold on, trying
-                                to connect
-                                you......</h3>
                             <div class="relative w-64">
                                 <canvas
-                                    class="animate-pulse bg-gray-600 w-64 h-64 rounded-lg relative"
+                                    class="hidden animate-pulse bg-gray-600 w-64 h-64 rounded-lg relative"
                                     ref="qr"></canvas>
                             </div>
-                            <h3 ref="cnt" class="hidden animate-bounce font-bold text-lg">
-                                Connecting......</h3>
+
+                            <!-- display when trying to authenticate user -->
+                            <h3 ref="connMsg"
+                                class="hidden animate-bounce mt-2 text-center font-bold text-lg">
+                                Connecting
+                            </h3>
+
+                            <!-- display when user is authenticated/unauthenticated -->
+                            <h3 ref="msg" class="animate-bounce font-bold text-lg">
+                                Click on chat to proceed
+                            </h3>
                         </div>
                     </div>
                 </div>
@@ -61,6 +67,13 @@
 <script>
 export default {
     name: 'ModelsList',
+
+    props: {
+        info: {
+            type: String,
+            required: true,
+        },
+    },
 
     data() {
         return {

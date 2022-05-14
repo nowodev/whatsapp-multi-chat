@@ -1,6 +1,6 @@
 <template>
     <div v-show="!authenticated">
-        <ModelsList ref="model" @navigate="navigate" />
+        <ModelsList ref="model" :info="info" @navigate="navigate" />
     </div>
 
     <div v-show="authenticated">
@@ -24,6 +24,7 @@ export default defineComponent({
 
     data() {
         return {
+            info: '',
             authenticated: false,
             chats: [],
             user: {},
@@ -76,12 +77,19 @@ export default defineComponent({
         },
 
         setAuthentication: function (user) {
-            console.log('Authentication: ', user);
             this.user = user;
             this.authenticated = false;
+
+            // show message on home page
+            this.$refs.model.$refs.msg.classList.remove('hidden');
+            this.$refs.model.$refs.qr.classList.add('hidden');
         },
 
         navigate: function (user) {
+            // remove message on home page and show barcode
+            this.$refs.model.$refs.msg.classList.add('hidden');
+            this.$refs.model.$refs.qr.classList.remove('hidden');
+
             // instantiate connection
             if (this.authenticated === false && this.user.id !== user.id) {
                 this.user = user;
@@ -89,7 +97,6 @@ export default defineComponent({
                 if (this.user.id) {
                     socket.emit('destroy')
                 }
-
 
                 socket.emit('init', {
                     userId: user.id
@@ -105,13 +112,11 @@ export default defineComponent({
                     });
 
                     this.$refs.model.$refs.qr.classList.remove('animate-pulse');
-                    this.$refs.model.$refs.msg.classList.add('hidden');
-                    this.$refs.model.$refs.cnt.classList.remove('hidden');
+                    this.$refs.model.$refs.connMsg.classList.remove('hidden');
                 });
 
                 // update dom
                 socket.on('ready', (chats) => {
-                    console.log(chats);
                     this.authenticated = true;
                     this.chats = chats;
                 });
@@ -123,8 +128,6 @@ export default defineComponent({
         // emitted event from ChatList to get selected chat
         selectedChat: function (id) {
             // get the selected chat id
-            console.log('Selected Chat ID: ' + id);
-
             socket.emit('fetchMessage', { chatId: id })
         },
 
@@ -135,9 +138,9 @@ export default defineComponent({
                 let file = message
 
                 socket.emit('sendMessage', {
-                        chatId: id,
-                        filePath: URL.createObjectURL(message),
-                        data: reader.result.substr(startIndex)
+                    chatId: id,
+                    filePath: URL.createObjectURL(message),
+                    data: reader.result.substr(startIndex)
                 });
 
             } else {
