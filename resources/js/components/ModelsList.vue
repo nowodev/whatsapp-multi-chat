@@ -20,7 +20,7 @@
 
                     <ul class="overflow-auto h-[32rem]">
                         <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Accounts</h2>
-                        <li v-for="(u, index) in user" :key="index">
+                        <li v-for="(u, index) in users" :key="index">
                             <a @click="$emit('navigate', u)" class="flex items-center px-3 py-2 text-sm transition duration-150
                                 ease-in-out border-y border-gray-300 cursor-pointer
                                 hover:bg-gray-100 focus:outline-none">
@@ -68,30 +68,6 @@
 export default {
     name: 'ModelsList',
 
-    props: {
-        info: {
-            type: String,
-            required: true,
-        },
-    },
-
-    data() {
-        return {
-            user: [
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333b44dda',
-                    name: 'Jhon Don',
-                },
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333b44dfa',
-                    name: 'Jhonson Don',
-                },
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333bs4dda',
-                    name: 'Jane Doe',
-                }
-            ]
-        }
-    }
+    props: ['users'],
 }
 </script>

@@ -1,6 +1,6 @@
 <template>
     <div v-show="!authenticated">
-        <ModelsList ref="model" :info="info" @navigate="navigate" />
+        <ModelsList ref="model" :users="users" @navigate="navigate" />
     </div>
 
     <div v-show="authenticated">
@@ -22,9 +22,10 @@ const socket = window.SocketIO;
 export default defineComponent({
     components: { ModelsList, ChatList },
 
+    props: ['users'],
+
     data() {
         return {
-            info: '',
             authenticated: false,
             chats: [],
             user: {},
@@ -91,15 +92,15 @@ export default defineComponent({
             this.$refs.model.$refs.qr.classList.remove('hidden');
 
             // instantiate connection
-            if (this.authenticated === false && this.user.id !== user.id) {
+            if (this.authenticated === false && this.user.uuid !== user.uuid) {
                 this.user = user;
 
-                if (this.user.id) {
+                if (this.user.uuid) {
                     socket.emit('destroy')
                 }
 
                 socket.emit('init', {
-                    userId: user.id
+                    userId: user.uuid
                 });
 
                 // listent to qr
