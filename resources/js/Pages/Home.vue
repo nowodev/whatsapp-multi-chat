@@ -34,17 +34,14 @@ export default defineComponent({
     created() {
         // populate messages
         socket.on('listMessages', (messages) => {
-            console.log('Chat Messages: ', messages);
             // this.messages.push(message);
             this.messages = messages;
-            this.scrollToTop()
         });
 
         // listen to message
         socket.on('message', (message) => {
-            console.log('Message Received: ', message);
             this.messages.push(message);
-            this.scrollToTop()
+            this.updateChat(message);
         });
 
         // listen to message_ack
@@ -55,6 +52,8 @@ export default defineComponent({
             let index = this.messages.findIndex(x => x.id === message.id);
 
             this.messages[index] = message;
+
+            this.updateChat(message);
 
             this.scrollToTop()
         });
@@ -71,9 +70,11 @@ export default defineComponent({
     },
 
     methods: {
-        scrollToTop() {
-            let bottom = this.$refs.chat.$refs.msg.$refs.bottom
-            bottom.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+        updateChat(message) {
+
+            let index = this.chats.findIndex(x => x.id === message.chat.id);
+
+            this.chats[index] = message.chat;
         },
 
         setAuthentication: function (user) {

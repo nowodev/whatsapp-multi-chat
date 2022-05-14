@@ -31,7 +31,8 @@ io.on('connection', (socket) => {
 
             for (let chat of chats) {
                 let contact = await chat.getContact();
-                chat.profilePic = await contact.getProfilePicUrl();
+                profilePic = await contact.getProfilePicUrl();
+                chat.profilePic = profilePic ?? '/img/avatar.png';
             }
 
             // send chats
@@ -39,12 +40,14 @@ io.on('connection', (socket) => {
         });
 
         // on message
-        client.on('message', (message) => {
+        client.on('message', async (message) => {
+            message.chat = await message.getChat();
             io.emit('message', message);
         });
 
         // on message
-        client.on('message_ack', (message) => {
+        client.on('message_ack', async (message) => {
+            message.chat = await message.getChat();
             io.emit('message_ack', message);
         });
 
