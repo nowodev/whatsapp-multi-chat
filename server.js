@@ -85,6 +85,6 @@ io.on('connection', (socket) => {
     });
 });
 
-server.listen(process.SOCKET_IO_PORT, () => {
-    console.log('Server is running on port:', process.SOCKET_IO_PORT);
+server.listen(3001, () => {
+    console.log('Server is running on port:', 3001);
 });
