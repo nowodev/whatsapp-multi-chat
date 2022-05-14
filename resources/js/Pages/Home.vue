@@ -4,9 +4,9 @@
     </div>
 
     <div v-show="authenticated">
-        <ChatList ref="chat" :chats="chats" :received-messages="receivedMessages"
-            :sent-messages="sentMessages" @send-to-home="receivedFromChatList"
-            @selected-chat="selectedChat" />
+        <ChatList ref="chat" :chats="chats" :user="user" :messages="messages"
+            @send-to-home="receivedFromChatList" @selected-chat="selectedChat"
+            @auth="setAuthentication" />
     </div>
 </template>
 
@@ -25,24 +25,38 @@ export default defineComponent({
     data() {
         return {
             authenticated: false,
-            userId: '05edee08-9164-40b3-a3ce-170333b44dda',
             chats: [],
-            receivedMessages: [],
-            sentMessages: [],
+            user: {},
+            messages: [],
         };
     },
 
     created() {
+        // populate messages
+        socket.on('listMessages', (messages) => {
+            console.log('Chat Messages: ', messages);
+            // this.messages.push(message);
+            this.messages = messages;
+            this.scrollToTop()
+        });
+
         // listen to message
         socket.on('message', (message) => {
-            console.log('Message Received: ' + message.body);
-            this.receivedMessages.push(message);
+            console.log('Message Received: ', message);
+            this.messages.push(message);
+            this.scrollToTop()
         });
 
         // listen to message_ack
         socket.on('message_ack', (message) => {
-            console.log('Message Sent: ' + message.body);
-            this.sentMessages.push(message);
+            console.log('Message Sent: ', message);
+            if (message.ack === 1) this.messages.push(message);
+
+            let index = this.messages.findIndex(x => x.id === message.id);
+
+            this.messages[index] = message;
+
+            this.scrollToTop()
         });
 
         // listen to media upload
@@ -52,40 +66,58 @@ export default defineComponent({
 
         // listen destory
         socket.on('destroy', (data) => {
-            console.log('Destroyed: ' + data);
+            console.log('Destroyed: ', data);
         });
     },
 
     methods: {
-        navigate: function () {
-            // instantiate connection
-            // if (this.authenticated === false) {
-            socket.emit('init', {
-                userId: this.userId
-            });
+        scrollToTop() {
+            let bottom = this.$refs.chat.$refs.msg.$refs.bottom
+            bottom.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"});
+        },
 
-            // listent to qr
-            socket.on('qr', (qr) => {
-                window.QRCode.toCanvas(this.$refs.model.$refs.qr, qr, function (error) {
-                    if (error) {
-                        alert("Failed to render QR");
-                        return console.error(error);
-                    }
+        setAuthentication: function (user) {
+            console.log('Authentication: ', user);
+            this.user = user;
+            this.authenticated = false;
+        },
+
+        navigate: function (user) {
+            // instantiate connection
+            if (this.authenticated === false && this.user.id !== user.id) {
+                if (this.user.id) {
+                    socket.emit('destroy')
+                    console.log('Destroyed');
+                }
+
+                socket.emit('init', {
+                    userId: user.id
                 });
 
-                this.$refs.model.$refs.qr.classList.remove('animate-pulse');
-                this.$refs.model.$refs.msg.classList.add('hidden');
-                this.$refs.model.$refs.cnt.classList.remove('hidden');
-            });
+                // listent to qr
+                socket.on('qr', (qr) => {
+                    window.QRCode.toCanvas(this.$refs.model.$refs.qr, qr, function (error) {
+                        if (error) {
+                            alert("Failed to render QR");
+                            return console.error(error);
+                        }
+                    });
 
-            // } else {
-            // update dom
-            socket.on('ready', (chats) => {
-                // console.log(chats);
+                    this.$refs.model.$refs.qr.classList.remove('animate-pulse');
+                    this.$refs.model.$refs.msg.classList.add('hidden');
+                    this.$refs.model.$refs.cnt.classList.remove('hidden');
+                });
+
+                // update dom
+                socket.on('ready', (chats) => {
+                    console.log(chats);
+                    this.authenticated = true;
+                    this.user = user;
+                    this.chats = chats;
+                });
+            } else {
                 this.authenticated = true;
-                this.chats = chats;
-            });
-            // }
+            }
         },
 
         // emitted event from ChatList to get selected chat

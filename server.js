@@ -29,6 +29,11 @@ io.on('connection', (socket) => {
             // get chats
             const chats = await client.getChats();
 
+            for (let chat of chats) {
+                let contact = await chat.getContact();
+                chat.profilePic = await contact.getProfilePicUrl();
+            }
+
             // send chats
             io.emit('ready', chats);
         });
@@ -72,9 +77,17 @@ io.on('connection', (socket) => {
 
             const chat = await client.getChatById(data.chatId);
 
-            io.emit('listMessages', chat.fetchMessages({
+            const messages = await chat.fetchMessages({
                 limit: 50
-            }));
+            });
+
+            io.emit('listMessages', messages);
+        });
+
+        // close
+        socket.on('destroy', async () => {
+            // close client
+            client.destroy();
         });
 
         // close

@@ -20,35 +20,16 @@
 
                     <ul class="overflow-auto h-[32rem]">
                         <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Accounts</h2>
-                        <li>
-                            <a @click="$emit('navigate')"
-                                class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-y border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
+                        <li v-for="(u, index) in user" :key="index">
+                            <a @click="$emit('navigate', u)" class="flex items-center px-3 py-2 text-sm transition duration-150
+                                ease-in-out border-y border-gray-300 cursor-pointer
+                                hover:bg-gray-100 focus:outline-none">
                                 <img class="object-cover w-10 h-10 rounded-full"
                                     src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
                                     alt="username" />
                                 <div class="w-full">
-                                    <span class="ml-5 font-semibold text-gray-600">Jhon
-                                        Don</span>
-                                </div>
-                            </a>
-                            <a
-                                class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
-                                <img class="object-cover w-10 h-10 rounded-full"
-                                    src="https://cdn.pixabay.com/photo/2016/06/15/15/25/loudspeaker-1459128__340.png"
-                                    alt="username" />
-                                <div class="w-full">
-                                    <span class="ml-5 font-semibold text-gray-600">Jhon
-                                        Don</span>
-                                </div>
-                            </a>
-                            <a
-                                class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
-                                <img class="object-cover w-10 h-10 rounded-full"
-                                    src="https://cdn.pixabay.com/photo/2018/01/15/07/51/woman-3083383__340.jpg"
-                                    alt="username" />
-                                <div class="w-full">
-                                    <span class="ml-5 font-semibold text-gray-600">Jhon
-                                        Don</span>
+                                    <span class="ml-5 font-semibold text-gray-600">{{ u.name
+                                    }}</span>
                                 </div>
                             </a>
                         </li>
@@ -80,5 +61,24 @@
 <script>
 export default {
     name: 'ModelsList',
+
+    data() {
+        return {
+            user: [
+                {
+                    id: '05edee08-9164-40b3-a3ce-170333b44dda',
+                    name: 'Jhon Don',
+                },
+                {
+                    id: '05edee08-9164-40b3-a3ce-170333b44dfa',
+                    name: 'Jhonson Don',
+                },
+                {
+                    id: '05edee08-9164-40b3-a3ce-170333bs4dda',
+                    name: 'Jane Doe',
+                }
+            ]
+        }
+    }
 }
 </script>
