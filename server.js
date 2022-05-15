@@ -1,10 +1,23 @@
 const WhatsAppClient = require('./whatsapp_client');
 const app = require('express')();
+const express = require('express');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
     cors: { origin: "*" }
 });
 const process = require('dotenv').config().parsed;
+const mime = require('mime-types');
+const axios = require('axios');
+const fileUpload = require('express-fileupload');
+
+
+app.use(express.json());
+app.use(express.urlencoded({
+    extended: true
+}));
+app.use(fileUpload({
+    debug: true
+}));
 
 io.on('connection', (socket) => {
     socket.on('init', async ({ userId } = data) => {

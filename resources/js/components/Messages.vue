@@ -73,13 +73,10 @@ export default {
             const file = this.$refs.file.files[0];
 
             if (this.msgInput.length > 0 && file === undefined) {
-                // this.messages.push(this.msgInput)
                 this.$emit('sendToChatList', id, this.msgInput)
-                this.msgInput = ''
             }
 
             if (file !== undefined) {
-                // this.messages.push(this.msgInput)
                 this.$emit('sendToChatList', id, file)
             }
         },

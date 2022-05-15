@@ -151,6 +151,23 @@ export default defineComponent({
                     data: file
                 });
 
+                // this works
+                // const reader = new FileReader();
+
+                // reader.readAsDataURL(file);
+
+                // reader.onload = function () {
+                //     let startIndex = reader.result.indexOf("base64,") + 7;
+
+                //     socket.emit('sendMessage', {
+                //         chatId: id,
+                //         filePath: URL.createObjectURL(file),
+                //         mimetype: file.type,
+                //         name: file.name,
+                //         data: reader.result.substr(startIndex)
+                //     })
+                // };
+
             } else {
                 socket.emit('sendMessage', {
                     chatId: id,
