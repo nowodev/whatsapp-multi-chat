@@ -225,21 +225,34 @@ class WhatsAppClient {
     sendMessage = async (data) => {
 
         if (data.filePath) {
-            // const media = MessageMedia.fromUrl(data.filePath);
-            // return this.client.sendMessage(data.chatId, media);
+            console.log('has media');
+            const file = data.data;
+            console.log(file);
 
-            const fileUrl = data.data;
+            fs.createWriteStream('public/storage/downloaded-media/text.mp4').write(Buffer.from(file));
 
-            let mimetype;
-            const attachment = await axios.get(fileUrl, {
-                responseType: 'arraybuffer'
-            }).then(response => {
-                mimetype = response.headers['content-type'];
-                return response.data.toString('base64');
-            });
+            return
+            const media = new MessageMedia(file.mimetype, file.data.toString('base64'), file.name);
 
-            const media = new MessageMedia(mimetype, attachment, 'Media');
+            console.log('got media');
+            this.client.sendMessage(data.chatId, media);
         }
+        // if (data.filePath) {
+        //     // const media = MessageMedia.fromUrl(data.filePath);
+        //     // return this.client.sendMessage(data.chatId, media);
+
+        //     const fileUrl = data.data;
+
+        //     let mimetype;
+        //     const attachment = await axios.get(fileUrl, {
+        //         responseType: 'arraybuffer'
+        //     }).then(response => {
+        //         mimetype = response.headers['content-type'];
+        //         return response.data.toString('base64');
+        //     });
+
+        //     const media = new MessageMedia(mimetype, attachment, 'Media');
+        // }
 
         this.client.sendMessage(data.chatId, data.data);
     };

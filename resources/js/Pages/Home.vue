@@ -177,6 +177,7 @@ export default defineComponent({
                 socket.emit('sendMessage', {
                     chatId: id,
                     filePath: URL.createObjectURL(file),
+                    mimetype: file.type,
                     data: file
                 });
 

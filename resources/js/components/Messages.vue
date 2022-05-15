@@ -74,10 +74,12 @@ export default {
 
             if (this.msgInput.length > 0 && file === undefined) {
                 this.$emit('sendToChatList', id, this.msgInput)
+                this.msgInput = ''
             }
 
             if (file !== undefined) {
                 this.$emit('sendToChatList', id, file)
+                file.value = null
             }
         },
     }
