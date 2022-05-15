@@ -4,8 +4,8 @@ const util = require('util');
 const path = require('path');
 const fs = require('fs');
 const request = require('request');
-const axios = require('axios');
 const mime = require('mime-types');
+const { v4: uuidv4 } = require('uuid');
 
 class WhatsAppClient {
     constructor(userId, io) {
@@ -224,37 +224,20 @@ class WhatsAppClient {
     }
     sendMessage = async (data) => {
 
-        if (data.filePath) {
-            console.log('has media');
-            const file = data.data;
-            console.log(file);
+        if (data.mimetype) {
+            const extension = mime.extension(data.mimetype);
+            const filePath = `public/storage/downloaded-media/${uuidv4()}.${extension}`;
 
-            fs.createWriteStream('public/storage/downloaded-media/text.mp4').write(Buffer.from(file));
+            fs.createWriteStream(filePath)
+                .write(Buffer.from(data.data));
 
-            return
-            const media = new MessageMedia(file.mimetype, file.data.toString('base64'), file.name);
+            const media = MessageMedia.fromFilePath(path.resolve(filePath));
 
             console.log('got media');
             this.client.sendMessage(data.chatId, media);
+        } else {
+            this.client.sendMessage(data.chatId, data.data);
         }
-        // if (data.filePath) {
-        //     // const media = MessageMedia.fromUrl(data.filePath);
-        //     // return this.client.sendMessage(data.chatId, media);
-
-        //     const fileUrl = data.data;
-
-        //     let mimetype;
-        //     const attachment = await axios.get(fileUrl, {
-        //         responseType: 'arraybuffer'
-        //     }).then(response => {
-        //         mimetype = response.headers['content-type'];
-        //         return response.data.toString('base64');
-        //     });
-
-        //     const media = new MessageMedia(mimetype, attachment, 'Media');
-        // }
-
-        this.client.sendMessage(data.chatId, data.data);
     };
     getDataPath = async () => {
         return `public/storage/whatsapp/${this.userId}`;

@@ -6,8 +6,6 @@ const io = require('socket.io')(server, {
     cors: { origin: "*" }
 });
 const process = require('dotenv').config().parsed;
-const mime = require('mime-types');
-const axios = require('axios');
 const fileUpload = require('express-fileupload');
 
 

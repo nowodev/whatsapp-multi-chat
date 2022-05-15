@@ -14,13 +14,17 @@
                 <div class="relative h-full w-full p-6">
                     <div class="inset-0 absolute overflow-y-auto flex flex-col-reverse">
                         <ul ref="bottom" class="space-y-2 p-4 w-full">
-                            <li v-for="(msg, index) in messages" :key="index" class="flex"
-                                :class="{ 'justify-end': msg.fromMe, 'justify-start': !msg.fromMe }">
-                                <div class="relative max-w-xl px-4 py-2 rounded shadow"
-                                    :class="{ 'text-white bg-cyan-500': msg.fromMe, 'text-gray-700': !msg.fromMe }">
-                                    <span class="block">{{ msg.body }}</span>
-                                </div>
-                            </li>
+                            <template  v-for="(msg, index) in messages" :key="index">
+                                <li
+                                    class="flex"
+                                    :class="{ 'justify-end': msg.fromMe, 'justify-start': !msg.fromMe }"
+                                    v-if="msg && msg.type == 'chat'">
+                                    <div class="relative max-w-xl px-4 py-2 rounded shadow"
+                                        :class="{ 'text-white bg-cyan-500': msg.fromMe, 'text-gray-700': !msg.fromMe }">
+                                        <span class="block">{{ msg.body }} {{ msg.type }}</span>
+                                    </div>
+                                </li>
+                            </template>
                         </ul>
                     </div>
                 </div>

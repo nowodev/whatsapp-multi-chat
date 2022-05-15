@@ -36,6 +36,8 @@ export default defineComponent({
     created() {
         // populate messages
         socket.on('listMessages', (messages) => {
+            console.log(messages);
+
             this.messages = messages;
         });
 
@@ -172,32 +174,11 @@ export default defineComponent({
         receivedFromChatList: function (id, message) {
             // check if message is a file
             if (message instanceof File) {
-                let file = message
-
                 socket.emit('sendMessage', {
                     chatId: id,
-                    filePath: URL.createObjectURL(file),
                     mimetype: file.type,
-                    data: file
+                    data: message
                 });
-
-                // this works
-                // const reader = new FileReader();
-
-                // reader.readAsDataURL(file);
-
-                // reader.onload = function () {
-                //     let startIndex = reader.result.indexOf("base64,") + 7;
-
-                //     socket.emit('sendMessage', {
-                //         chatId: id,
-                //         filePath: URL.createObjectURL(file),
-                //         mimetype: file.type,
-                //         name: file.name,
-                //         data: reader.result.substr(startIndex)
-                //     })
-                // };
-
             } else {
                 socket.emit('sendMessage', {
                     chatId: id,
