@@ -32,7 +32,7 @@ class WhatsAppClient {
             // kill all processes
             await this.onDestroy();
 
-            if(tries > 10) {
+            if (tries > 10) {
                 const dirPath = path.resolve(await this.getDataPath());
                 fs.rmSync(dirPath, { recursive: true, force: true });
             }
@@ -50,7 +50,7 @@ class WhatsAppClient {
                 })
             });
             return this;
-        } catch(e) {
+        } catch (e) {
             console.log("Failed to setUp Api:", e.message);
         }
     }
@@ -80,7 +80,7 @@ class WhatsAppClient {
     initialize = async () => {
         try {
             await this.client.initialize();
-        } catch(e) {
+        } catch (e) {
             console.log("Initialization failed:", e.message);
             this.io.emit('auth_failure', 'Whatsapp Authentication Failed!');
         }
@@ -110,7 +110,7 @@ class WhatsAppClient {
 
             // send chats
             this.io.emit('ready', chats);
-        } catch(e) {
+        } catch (e) {
             console.log("Ready failed:", e.message);
         }
     }
@@ -165,38 +165,38 @@ class WhatsAppClient {
             message.chat = await message.getChat();
 
             // Downloading media
-            if (message.hasMedia) {
-                const media = await message.downloadMedia();
+            // if (message.hasMedia) {
+            //     const media = await message.downloadMedia();
 
-                // To better understanding
-                // Please look at the console what data we get
-                console.log(media);
+            //     // To better understanding
+            //     // Please look at the console what data we get
+            //     console.log(media);
 
-                if (media) {
-                    // The folder to store: change as you want!
-                    // Create if not exists
-                    const mediaPath = 'public/storage/downloaded-media/';
+            //     if (media) {
+            //         // The folder to store: change as you want!
+            //         // Create if not exists
+            //         const mediaPath = 'public/storage/downloaded-media/';
 
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
-                    }
+            //         if (!fs.existsSync(mediaPath)) {
+            //             fs.mkdirSync(mediaPath);
+            //         }
 
-                    // Get the file extension by mime-type
-                    const extension = mime.extension(media.mimetype);
+            //         // Get the file extension by mime-type
+            //         const extension = mime.extension(media.mimetype);
 
-                    // Filename: change as you want!
-                    // I will use the time for this example
-                    // Why not use media.filename? Because the value is not certain exists
-                    const filename = new Date().getTime();
+            //         // Filename: change as you want!
+            //         // I will use the time for this example
+            //         // Why not use media.filename? Because the value is not certain exists
+            //         const filename = new Date().getTime();
 
-                    const fullFilename = mediaPath + filename + '.' + extension;
+            //         const fullFilename = mediaPath + filename + '.' + extension;
 
-                    // Save to file
-                    fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                    console.log('File downloaded successfully!', fullFilename);
+            //         // Save to file
+            //         fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+            //         console.log('File downloaded successfully!', fullFilename);
 
-                }
-            }
+            //     }
+            // }
 
             this.io.emit('message_ack', message);
         } catch (err) {
@@ -218,7 +218,7 @@ class WhatsAppClient {
             });
 
             this.io.emit('listMessages', messages);
-        } catch(e) {
+        } catch (e) {
             console.log("List Message failed:", e.message);
         }
     }
@@ -233,7 +233,6 @@ class WhatsAppClient {
 
             const media = MessageMedia.fromFilePath(path.resolve(filePath));
 
-            console.log('got media');
             this.client.sendMessage(data.chatId, media);
         } else {
             this.client.sendMessage(data.chatId, data.data);

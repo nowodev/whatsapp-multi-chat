@@ -102,7 +102,7 @@ export default defineComponent({
             // instantiate connection
             if (this.authenticated === false) {
 
-                if(this.user.uuid !== user.uuid) {
+                if (this.user.uuid !== user.uuid) {
                     this.tries = 0;
                 }
 
@@ -123,7 +123,7 @@ export default defineComponent({
                 // listent to qr
                 socket.on('qr', (qr) => {
 
-                    if(this.authenticated) return;
+                    if (this.authenticated) return;
 
                     window.QRCode.toCanvas(this.$refs.model.$refs.qr, qr, function (error) {
                         if (error) {
