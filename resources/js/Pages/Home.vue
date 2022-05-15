@@ -176,7 +176,7 @@ export default defineComponent({
             if (message instanceof File) {
                 socket.emit('sendMessage', {
                     chatId: id,
-                    mimetype: file.type,
+                    mimetype: message.type,
                     data: message
                 });
             } else {

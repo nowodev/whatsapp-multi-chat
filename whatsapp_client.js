@@ -116,43 +116,10 @@ class WhatsAppClient {
     }
     onMessage = async (message) => {
         try {
-
             message.chat = await message.getChat();
 
             if (message.hasMedia) {
-                message.downloadMedia().then(media => {
-                    // To better understanding
-                    // Please look at the console what data we get
-                    console.log(media);
-
-                    if (media) {
-                        // The folder to store: change as you want!
-                        // Create if not exists
-                        const mediaPath = 'public/storage/downloaded-media/';
-
-                        if (!fs.existsSync(mediaPath)) {
-                            fs.mkdirSync(mediaPath);
-                        }
-
-                        // Get the file extension by mime-type
-                        const extension = mime.extension(media.mimetype);
-
-                        // Filename: change as you want!
-                        // I will use the time for this example
-                        // Why not use media.filename? Because the value is not certain exists
-                        const filename = new Date().getTime();
-
-                        const fullFilename = mediaPath + filename + '.' + extension;
-
-                        // Save to file
-                        try {
-                            fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                            console.log('File downloaded successfully!', fullFilename);
-                        } catch (err) {
-                            console.log('Failed to save the file:', err);
-                        }
-                    }
-                });
+                message.url = await this.downloadMedia(message);
             }
 
             this.io.emit('message', message);
@@ -164,44 +131,33 @@ class WhatsAppClient {
         try {
             message.chat = await message.getChat();
 
-            // Downloading media
-            // if (message.hasMedia) {
-            //     const media = await message.downloadMedia();
-
-            //     // To better understanding
-            //     // Please look at the console what data we get
-            //     console.log(media);
-
-            //     if (media) {
-            //         // The folder to store: change as you want!
-            //         // Create if not exists
-            //         const mediaPath = 'public/storage/downloaded-media/';
-
-            //         if (!fs.existsSync(mediaPath)) {
-            //             fs.mkdirSync(mediaPath);
-            //         }
-
-            //         // Get the file extension by mime-type
-            //         const extension = mime.extension(media.mimetype);
-
-            //         // Filename: change as you want!
-            //         // I will use the time for this example
-            //         // Why not use media.filename? Because the value is not certain exists
-            //         const filename = new Date().getTime();
-
-            //         const fullFilename = mediaPath + filename + '.' + extension;
-
-            //         // Save to file
-            //         fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-            //         console.log('File downloaded successfully!', fullFilename);
-
-            //     }
-            // }
+            if (message.hasMedia) {
+                message.url = await this.downloadMedia(message);
+            }
 
             this.io.emit('message_ack', message);
         } catch (err) {
             console.log('Failed to handle message ack event:', err.message);
         }
+    }
+    downloadMedia = async (message) => {
+        const media = await message.downloadMedia();
+
+        if (!media) return;
+
+        const mediaPath = 'public/storage/downloaded-media/';
+
+        if (!fs.existsSync(mediaPath)) {
+            fs.mkdirSync(mediaPath);
+        }
+
+        const extension = mime.extension(media.mimetype);
+        const fullFilename = mediaPath + media.data.id.id + '.' + extension;
+
+        // Save to file
+        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+
+        return fullFilename.split('public').join('');
     }
     onMediaUploaded = async (message) => {
         this.io.emit('media_uploaded', message);
@@ -216,6 +172,14 @@ class WhatsAppClient {
             const messages = await chat.fetchMessages({
                 limit: 50
             });
+
+            for(var message of messages) {
+                message.chat = await message.getChat();
+
+                if (message.hasMedia) {
+                    message.url = await this.downloadMedia(message);
+                }
+            }
 
             this.io.emit('listMessages', messages);
         } catch (e) {
@@ -234,6 +198,8 @@ class WhatsAppClient {
             const media = MessageMedia.fromFilePath(path.resolve(filePath));
 
             this.client.sendMessage(data.chatId, media);
+
+            fs.rmSync(filePath, { recursive: true, force: true });
         } else {
             this.client.sendMessage(data.chatId, data.data);
         }

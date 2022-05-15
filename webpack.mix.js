@@ -21,7 +21,12 @@ mix.js('resources/js/app.js', 'public/js')
     .alias({
         '@': 'resources/js',
     })
-    .browserSync('http://gitls.test');
+    .options({
+        hmrOptions: {
+            host: '127.0.0.1',
+            port: 8080
+        }
+    });
 
 if (mix.inProduction()) {
     mix.version();

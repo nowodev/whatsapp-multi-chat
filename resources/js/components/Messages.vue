@@ -18,11 +18,17 @@
                                 <li
                                     class="flex"
                                     :class="{ 'justify-end': msg.fromMe, 'justify-start': !msg.fromMe }"
-                                    v-if="msg && msg.type == 'chat'">
-                                    <div class="relative max-w-xl px-4 py-2 rounded shadow"
-                                        :class="{ 'text-white bg-cyan-500': msg.fromMe, 'text-gray-700': !msg.fromMe }">
-                                        <span class="block">{{ msg.body }} {{ msg.type }}</span>
-                                    </div>
+                                    v-if="msg && msg.type !== 'document'">
+
+                                     <template v-if="msg.type == 'chat'">
+                                        <div class="relative max-w-xl px-4 py-2 rounded shadow"
+                                            :class="{ 'text-white bg-cyan-500': msg.fromMe, 'text-gray-700': !msg.fromMe }">
+                                            <span class="block">{{ msg.body }}</span>
+                                        </div>
+                                    </template>
+                                    <template v-else-if="msg.type == 'image'">
+                                        <img :src="msg.url" />
+                                    </template>
                                 </li>
                             </template>
                         </ul>
