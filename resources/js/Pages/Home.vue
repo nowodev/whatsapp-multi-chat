@@ -147,8 +147,8 @@ export default defineComponent({
 
                 socket.emit('sendMessage', {
                     chatId: id,
-                    filePath: URL.createObjectURL(message),
-                    data: reader.result.substr(startIndex)
+                    filePath: URL.createObjectURL(file),
+                    data: file
                 });
 
             } else {

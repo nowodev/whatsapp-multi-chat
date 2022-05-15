@@ -4,6 +4,8 @@ const util = require('util');
 const path = require('path');
 const fs = require('fs');
 const request = require('request');
+const axios = require('axios');
+const mime = require('mime-types');
 
 class WhatsAppClient {
     constructor(userId, io) {
@@ -82,10 +84,85 @@ class WhatsAppClient {
     }
     onMessage = async (message) => {
         message.chat = await message.getChat();
+
+        if (message.hasMedia) {
+            message.downloadMedia().then(media => {
+                // To better understanding
+                // Please look at the console what data we get
+                console.log(media);
+
+                if (media) {
+                    // The folder to store: change as you want!
+                    // Create if not exists
+                    const mediaPath = 'public/downloaded-media/';
+
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+
+                    // Get the file extension by mime-type
+                    const extension = mime.extension(media.mimetype);
+
+                    // Filename: change as you want!
+                    // I will use the time for this example
+                    // Why not use media.filename? Because the value is not certain exists
+                    const filename = new Date().getTime();
+
+                    const fullFilename = mediaPath + filename + '.' + extension;
+
+                    // Save to file
+                    try {
+                        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                        console.log('File downloaded successfully!', fullFilename);
+                    } catch (err) {
+                        console.log('Failed to save the file:', err);
+                    }
+                }
+            });
+        }
+
         this.io.emit('message', message);
     }
     onMessageAck = async (message) => {
         message.chat = await message.getChat();
+
+        // Downloading media
+        if (message.hasMedia) {
+            message.downloadMedia().then(media => {
+                // To better understanding
+                // Please look at the console what data we get
+                console.log(media);
+
+                if (media) {
+                    // The folder to store: change as you want!
+                    // Create if not exists
+                    const mediaPath = 'public/downloaded-media/';
+
+                    if (!fs.existsSync(mediaPath)) {
+                        fs.mkdirSync(mediaPath);
+                    }
+
+                    // Get the file extension by mime-type
+                    const extension = mime.extension(media.mimetype);
+
+                    // Filename: change as you want!
+                    // I will use the time for this example
+                    // Why not use media.filename? Because the value is not certain exists
+                    const filename = new Date().getTime();
+
+                    const fullFilename = mediaPath + filename + '.' + extension;
+
+                    // Save to file
+                    try {
+                        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                        console.log('File downloaded successfully!', fullFilename);
+                    } catch (err) {
+                        console.log('Failed to save the file:', err);
+                    }
+                }
+            });
+        }
+
         this.io.emit('message_ack', message);
     }
     onMediaUploaded = async (message) => {
@@ -106,8 +183,20 @@ class WhatsAppClient {
     sendMessage = async (data) => {
 
         if (data.filePath) {
-            const media = MessageMedia.fromUrl(data.filePath);
-            return this.client.sendMessage(data.chatId, media);
+            // const media = MessageMedia.fromUrl(data.filePath);
+            // return this.client.sendMessage(data.chatId, media);
+
+            const fileUrl = data.data;
+
+            let mimetype;
+            const attachment = await axios.get(fileUrl, {
+                responseType: 'arraybuffer'
+            }).then(response => {
+                mimetype = response.headers['content-type'];
+                return response.data.toString('base64');
+            });
+
+            const media = new MessageMedia(mimetype, attachment, 'Media');
         }
 
         this.client.sendMessage(data.chatId, data.data);
