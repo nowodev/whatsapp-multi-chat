@@ -45,7 +45,8 @@ class WhatsAppClient {
         return this;
     }
     getBrowserWsEndpoint = async () => {
-        const config = this.getConfig(this.userId);
+        const config = await this.getConfig(this.userId);
+
         const chrome = await chromeLauncher.launch({
             ...config,
             chromeFlags: [
@@ -94,7 +95,7 @@ class WhatsAppClient {
                 if (media) {
                     // The folder to store: change as you want!
                     // Create if not exists
-                    const mediaPath = 'public/downloaded-media/';
+                    const mediaPath = 'public/storage/downloaded-media/';
 
                     if (!fs.existsSync(mediaPath)) {
                         fs.mkdirSync(mediaPath);
@@ -136,7 +137,7 @@ class WhatsAppClient {
                 if (media) {
                     // The folder to store: change as you want!
                     // Create if not exists
-                    const mediaPath = 'public/downloaded-media/';
+                    const mediaPath = 'public/storage/downloaded-media/';
 
                     if (!fs.existsSync(mediaPath)) {
                         fs.mkdirSync(mediaPath);

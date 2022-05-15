@@ -10,7 +10,6 @@
     </div>
 </template>
 
-
 <script>
 import ChatList from '@/components/ChatList.vue';
 import ModelsList from '@/components/ModelsList.vue'
@@ -91,6 +90,7 @@ export default defineComponent({
             // remove message on home page and show barcode
             this.$refs.model.$refs.msg.classList.add('hidden');
             this.$refs.model.$refs.waitMsg.classList.remove('hidden');
+            this.$refs.model.$refs.qr.classList.add('hidden');
 
             // instantiate connection
             if (this.authenticated === false && this.user.uuid !== user.uuid) {
