@@ -25,7 +25,7 @@ io.on('connection', (socket) => {
         // create api
         const api = await client.setUpApi(tries);
 
-        if(!api.client) return;
+        if(!api) return;
 
         // on qr
         api.client.on('qr', api.onQr);

@@ -49,10 +49,10 @@ class WhatsAppClient {
                     dataPath: await this.getDataPath()
                 })
             });
+            return this;
         } catch(e) {
             console.log("Failed to setUp Api:", e.message);
         }
-        return this;
     }
     getBrowserWsEndpoint = async () => {
         try {
@@ -115,45 +115,50 @@ class WhatsAppClient {
         }
     }
     onMessage = async (message) => {
-        message.chat = await message.getChat();
+        try {
 
-        if (message.hasMedia) {
-            message.downloadMedia().then(media => {
-                // To better understanding
-                // Please look at the console what data we get
-                console.log(media);
+            message.chat = await message.getChat();
 
-                if (media) {
-                    // The folder to store: change as you want!
-                    // Create if not exists
-                    const mediaPath = 'public/storage/downloaded-media/';
+            if (message.hasMedia) {
+                message.downloadMedia().then(media => {
+                    // To better understanding
+                    // Please look at the console what data we get
+                    console.log(media);
 
-                    if (!fs.existsSync(mediaPath)) {
-                        fs.mkdirSync(mediaPath);
+                    if (media) {
+                        // The folder to store: change as you want!
+                        // Create if not exists
+                        const mediaPath = 'public/storage/downloaded-media/';
+
+                        if (!fs.existsSync(mediaPath)) {
+                            fs.mkdirSync(mediaPath);
+                        }
+
+                        // Get the file extension by mime-type
+                        const extension = mime.extension(media.mimetype);
+
+                        // Filename: change as you want!
+                        // I will use the time for this example
+                        // Why not use media.filename? Because the value is not certain exists
+                        const filename = new Date().getTime();
+
+                        const fullFilename = mediaPath + filename + '.' + extension;
+
+                        // Save to file
+                        try {
+                            fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
+                            console.log('File downloaded successfully!', fullFilename);
+                        } catch (err) {
+                            console.log('Failed to save the file:', err);
+                        }
                     }
+                });
+            }
 
-                    // Get the file extension by mime-type
-                    const extension = mime.extension(media.mimetype);
-
-                    // Filename: change as you want!
-                    // I will use the time for this example
-                    // Why not use media.filename? Because the value is not certain exists
-                    const filename = new Date().getTime();
-
-                    const fullFilename = mediaPath + filename + '.' + extension;
-
-                    // Save to file
-                    try {
-                        fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
-                        console.log('File downloaded successfully!', fullFilename);
-                    } catch (err) {
-                        console.log('Failed to save the file:', err);
-                    }
-                }
-            });
+            this.io.emit('message', message);
+        } catch (e) {
+            console.log("Failed to handle message received event:", e.message);
         }
-
-        this.io.emit('message', message);
     }
     onMessageAck = async (message) => {
         try {
@@ -195,7 +200,7 @@ class WhatsAppClient {
 
             this.io.emit('message_ack', message);
         } catch (err) {
-            console.log('Failed to save the file:', err.message);
+            console.log('Failed to handle message ack event:', err.message);
         }
     }
     onMediaUploaded = async (message) => {
