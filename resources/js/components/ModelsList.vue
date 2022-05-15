@@ -58,6 +58,10 @@
                             <h3 ref="success" class="hidden animate-bounce font-bold text-lg">
                                 Authenticated successfully, loading chats...
                             </h3>
+
+                            <h3 ref="failed" class="hidden animate-bounce font-bold text-lg">
+                                Authentication failed, please click on chat to try again...
+                            </h3>
                         </div>
                     </div>
                 </div>

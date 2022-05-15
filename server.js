@@ -20,10 +20,12 @@ app.use(fileUpload({
 }));
 
 io.on('connection', (socket) => {
-    socket.on('init', async ({ userId } = data) => {
+    socket.on('init', async ({ userId, tries } = data) => {
         const client = new WhatsAppClient(userId, io);
         // create api
-        const api = await client.setUpApi();
+        const api = await client.setUpApi(tries);
+
+        if(!api.client) return;
 
         // on qr
         api.client.on('qr', api.onQr);
@@ -37,8 +39,11 @@ io.on('connection', (socket) => {
         api.client.on('media_uploaded', api.onMediaUploaded);
         // authenticated
         api.client.on('authenticated', api.onAuthenticated);
+        // authenticated failed
+        api.client.on('auth_failure', api.onAuthFailure);
+
         // init
-        api.client.initialize();
+        await api.initialize();
 
         // sendMessage
         socket.on('sendMessage', api.sendMessage);

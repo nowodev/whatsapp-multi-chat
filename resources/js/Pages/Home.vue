@@ -25,6 +25,7 @@ export default defineComponent({
 
     data() {
         return {
+            tries: 0,
             authenticated: false,
             chats: [],
             user: {},
@@ -84,6 +85,7 @@ export default defineComponent({
             this.$refs.model.$refs.qr.classList.add('hidden');
             this.$refs.model.$refs.waitMsg.classList.add('hidden');
             this.$refs.model.$refs.success.classList.add('hidden');
+            this.$refs.model.$refs.failed.classList.add('hidden');
         },
 
         navigate: function (user) {
@@ -91,21 +93,36 @@ export default defineComponent({
             this.$refs.model.$refs.msg.classList.add('hidden');
             this.$refs.model.$refs.waitMsg.classList.remove('hidden');
             this.$refs.model.$refs.qr.classList.add('hidden');
+            this.$refs.model.$refs.failed.classList.add('hidden');
+            this.$refs.model.$refs.success.classList.add('hidden');
+
 
             // instantiate connection
-            if (this.authenticated === false && this.user.uuid !== user.uuid) {
+            if (this.authenticated === false) {
+
+                if(this.user.uuid !== user.uuid) {
+                    this.tries = 0;
+                }
+
                 this.user = user;
+
+                // update tries
+                this.tries++;
 
                 if (this.user.uuid) {
                     socket.emit('destroy')
                 }
 
                 socket.emit('init', {
-                    userId: user.uuid
+                    userId: user.uuid,
+                    tries: this.tries
                 });
 
                 // listent to qr
                 socket.on('qr', (qr) => {
+
+                    if(this.authenticated) return;
+
                     window.QRCode.toCanvas(this.$refs.model.$refs.qr, qr, function (error) {
                         if (error) {
                             alert("Failed to render QR");
@@ -114,22 +131,34 @@ export default defineComponent({
                     });
 
                     this.$refs.model.$refs.waitMsg.classList.add('hidden');
+                    this.$refs.model.$refs.failed.classList.add('hidden');
                     this.$refs.model.$refs.qr.classList.remove('hidden');
+                    this.tries = 0;
+                    this.user = {};
                 });
 
                 socket.on('authenticated', () => {
                     this.$refs.model.$refs.success.classList.remove('hidden');
                     this.$refs.model.$refs.qr.classList.add('hidden');
                     this.$refs.model.$refs.waitMsg.classList.add('hidden');
+                    this.$refs.model.$refs.failed.classList.add('hidden');
+                });
+
+                socket.on('auth_failure', () => {
+                    this.$refs.model.$refs.success.classList.add('hidden');
+                    this.$refs.model.$refs.qr.classList.add('hidden');
+                    this.$refs.model.$refs.waitMsg.classList.add('hidden');
+                    this.$refs.model.$refs.failed.classList.remove('hidden');
+
+                    this.authenticated = false;
                 });
 
                 // update dom
                 socket.on('ready', (chats) => {
                     this.authenticated = true;
                     this.chats = chats;
+                    this.tries = 0;
                 });
-            } else {
-                this.authenticated = true;
             }
         },
 
