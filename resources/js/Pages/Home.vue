@@ -1,10 +1,11 @@
 <template>
     <div v-show="!authenticated">
-        <ModelsList ref="model" :users="users" @navigate="navigate" />
+        <ModelsList ref="model" :users="users" :disconnected="disconnected" @navigate="navigate" />
     </div>
 
     <div v-show="authenticated">
         <ChatList ref="chat" :chats="chats" :user="user" :messages="messages"
+            :loading="loading"
             @send-to-home="receivedFromChatList" @selected-chat="selectedChat"
             @auth="setAuthentication" />
     </div>
@@ -27,6 +28,8 @@ export default defineComponent({
         return {
             tries: 0,
             authenticated: false,
+            disconnected: false,
+            loading: true,
             chats: [],
             user: {},
             messages: [],
@@ -36,46 +39,70 @@ export default defineComponent({
     created() {
         // populate messages
         socket.on('listMessages', (messages) => {
-            console.log(messages);
-
             this.messages = messages;
+            this.loading = false;
         });
 
         // listen to message
         socket.on('message', (message) => {
-            this.messages.push(message);
+            if(message.type == "e2e_notification") return;
+
+            let index = this.messages.findIndex(x => x.chat.id._serialized === message.chat.id._serialized);
+
+            if(index != -1) {
+                this.messages.push(message);
+            }
+
             this.updateChat(message);
         });
 
         // listen to message_ack
         socket.on('message_ack', (message) => {
-            console.log('Message Sent: ', message);
+            console.log(message);
             if (message.ack === 1) this.messages.push(message);
 
-            let index = this.messages.findIndex(x => x.id === message.id);
+            let index = this.messages.findIndex(x => x.id._serialized === message.id._serialized);
 
-            this.messages[index] = message;
+            if(index != - 1) {
+                this.messages[index] = message;
+            }
 
             this.updateChat(message);
         });
 
         // listen to media upload
         socket.on('media_uploaded', (message) => {
-            console.log('Media Uploaded: ' + message);
+            console.log('Media Uploaded: ' , message);
         });
 
         // listen destory
-        socket.on('destroy', (data) => {
-            console.log('Destroyed: ', data);
+        socket.on('destroyed', (data) => {
+            this.disconnected = true;
+        });
+
+        // on dsiconnected
+        socket.on("connect_error", (err) => {
+            this.disconnected = true;
+            this.authenticated = false;
+            this.user = {};
+        });
+
+        // on dsiconnected
+        socket.on("connect", (err) => {
+            this.disconnected = false;
         });
     },
 
     methods: {
         updateChat(message) {
 
-            let index = this.chats.findIndex(x => x.id === message.chat.id);
+            let index = this.chats.findIndex(x => x.id._serialized === message.chat.id._serialized);
 
-            this.chats[index] = message.chat;
+            if(index == -1) {
+                this.chats.unshift(message.chat);
+            } else {
+                this.chats[index] = message.chat;
+            }
         },
 
         setAuthentication: function (user) {
@@ -106,6 +133,7 @@ export default defineComponent({
                     this.tries = 0;
                 }
 
+                this.disconnected = false;
                 this.user = user;
 
                 // update tries
@@ -122,7 +150,9 @@ export default defineComponent({
 
                 // listent to qr
                 socket.on('qr', (qr) => {
-
+                    this.disconnected = false;
+                    this.tries = 0;
+                    this.user = {};
                     if (this.authenticated) return;
 
                     window.QRCode.toCanvas(this.$refs.model.$refs.qr, qr, function (error) {
@@ -135,8 +165,6 @@ export default defineComponent({
                     this.$refs.model.$refs.waitMsg.classList.add('hidden');
                     this.$refs.model.$refs.failed.classList.add('hidden');
                     this.$refs.model.$refs.qr.classList.remove('hidden');
-                    this.tries = 0;
-                    this.user = {};
                 });
 
                 socket.on('authenticated', () => {
@@ -167,22 +195,24 @@ export default defineComponent({
         // emitted event from ChatList to get selected chat
         selectedChat: function (id) {
             // get the selected chat id
-            socket.emit('fetchMessage', { chatId: id })
+            socket.emit('fetchMessage', { chatId: id });
+            this.loading = true;
         },
 
         // emitted event from ChatList, coming from Messages to send messages to server
-        receivedFromChatList: function (id, message) {
+        receivedFromChatList: function (message) {
             // check if message is a file
-            if (message instanceof File) {
+            if (message.file instanceof File) {
                 socket.emit('sendMessage', {
-                    chatId: id,
-                    mimetype: message.type,
-                    data: message
+                    chatId: message.id,
+                    mimetype: message.file.type,
+                    file: message.file,
+                    caption: message.caption
                 });
             } else {
                 socket.emit('sendMessage', {
-                    chatId: id,
-                    data: message
+                    chatId: message.id,
+                    data: message.text
                 })
             }
         }

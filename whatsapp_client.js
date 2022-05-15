@@ -80,6 +80,9 @@ class WhatsAppClient {
     initialize = async () => {
         try {
             await this.client.initialize();
+
+            // on disconnected
+            this.client.pupBrowser.on('disconnected', this.onDisconnect);
         } catch (e) {
             console.log("Initialization failed:", e.message);
             this.io.emit('auth_failure', 'Whatsapp Authentication Failed!');
@@ -103,9 +106,7 @@ class WhatsAppClient {
             const chats = await this.client.getChats();
 
             for (let chat of chats) {
-                const contact = await chat.getContact();
-                const profilePic = await contact.getProfilePicUrl();
-                chat.profilePic = profilePic ? profilePic : 'img/avatar.png'
+                chat.profilePic = await this.getChatProfilePic(chat);
             }
 
             // send chats
@@ -114,9 +115,20 @@ class WhatsAppClient {
             console.log("Ready failed:", e.message);
         }
     }
+    getChatProfilePic = async (chat) => {
+        const contact = await chat.getContact();
+        const profilePic = await contact.getProfilePicUrl();
+        return profilePic ? profilePic : 'img/avatar.png'
+    }
+    getMessageChat = async (message) => {
+        const chat =  await message.getChat();
+        chat.profilePic = await this.getChatProfilePic(chat);
+        return chat;
+    }
     onMessage = async (message) => {
         try {
-            message.chat = await message.getChat();
+
+            message.chat = await this.getMessageChat(message);
 
             if (message.hasMedia) {
                 message.url = await this.downloadMedia(message);
@@ -129,7 +141,7 @@ class WhatsAppClient {
     }
     onMessageAck = async (message) => {
         try {
-            message.chat = await message.getChat();
+            message.chat = await this.getMessageChat(message);
 
             if (message.hasMedia) {
                 message.url = await this.downloadMedia(message);
@@ -141,6 +153,9 @@ class WhatsAppClient {
         }
     }
     downloadMedia = async (message) => {
+
+        if(message.type !== 'image') return;
+
         const media = await message.downloadMedia();
 
         if (!media) return;
@@ -152,7 +167,7 @@ class WhatsAppClient {
         }
 
         const extension = mime.extension(media.mimetype);
-        const fullFilename = mediaPath + media.data.id.id + '.' + extension;
+        const fullFilename = mediaPath + message.id.id + '.' + extension;
 
         // Save to file
         fs.writeFileSync(fullFilename, media.data, { encoding: 'base64' });
@@ -165,6 +180,10 @@ class WhatsAppClient {
     onDestroy = async () => {
         await chromeLauncher.killAll();
     }
+    onDisconnect = async () => {
+        this.io.emit('destroyed', {});
+        console.log('disconnected');
+    }
     fetchMessage = async (data) => {
         try {
             const chat = await this.client.getChatById(data.chatId);
@@ -174,7 +193,7 @@ class WhatsAppClient {
             });
 
             for(var message of messages) {
-                message.chat = await message.getChat();
+                message.chat = await this.getMessageChat(message);
 
                 if (message.hasMedia) {
                     message.url = await this.downloadMedia(message);
@@ -187,21 +206,27 @@ class WhatsAppClient {
         }
     }
     sendMessage = async (data) => {
+        try {
 
-        if (data.mimetype) {
-            const extension = mime.extension(data.mimetype);
-            const filePath = `public/storage/downloaded-media/${uuidv4()}.${extension}`;
+            if (data.mimetype) {
+                const extension = mime.extension(data.mimetype);
+                const filePath = `public/storage/downloaded-media/${uuidv4()}.${extension}`;
 
-            fs.createWriteStream(filePath)
-                .write(Buffer.from(data.data));
+                fs.createWriteStream(filePath)
+                    .write(Buffer.from(data.file), () => {
+                        const media = MessageMedia.fromFilePath(path.resolve(filePath));
 
-            const media = MessageMedia.fromFilePath(path.resolve(filePath));
+                        this.client.sendMessage(data.chatId, media, {
+                            caption: data.caption ? data.caption: null
+                        });
 
-            this.client.sendMessage(data.chatId, media);
-
-            fs.rmSync(filePath, { recursive: true, force: true });
-        } else {
-            this.client.sendMessage(data.chatId, data.data);
+                        fs.rmSync(filePath, { recursive: true, force: true });
+                    });
+            } else {
+                this.client.sendMessage(data.chatId, data.data);
+            }
+        } catch (e) {
+            console.log("Send Message failed:", e.message);
         }
     };
     getDataPath = async () => {

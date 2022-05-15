@@ -152,45 +152,6 @@ export default {
 
             // emit not working
             socket.emit('fetchMessages', { chatId: chatId })
-        },
-
-        send: function (userId) {
-            const socket = window.SocketIO;
-
-            const file = this.$refs.file.files[0];
-
-            if (file) {
-                const reader = new FileReader();
-
-                reader.readAsDataURL(file);
-
-                reader.onload = function () {
-                    var startIndex = reader.result.indexOf("base64,") + 7;
-
-                    socket.emit('sendMessage', {
-                        chatId: userId,
-                        mimetype: file.type,
-                        data: reader.result.substr(startIndex)
-                    })
-                };
-
-                reader.onerror = function (error) {
-                    console.log('Error: ', error);
-                };
-
-            } else {
-                // not the ideal thing to use but when using on('message_ack')
-                //  output is duplicated
-                this.messages.push(this.msgInput)
-
-                // emit not working
-                socket.emit('sendMessage', {
-                    chatId: userId,
-                    data: this.msgInput
-                });
-            }
-
-            this.msgInput = null;
         }
     }
 }

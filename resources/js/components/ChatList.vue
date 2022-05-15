@@ -53,7 +53,7 @@
                 <Welcome v-show="showWelcome" />
 
                 <Messages ref="msg" v-show="!showWelcome" :selected-chat="selectedChat"
-                    :messages="messages" @send-to-chatList="receivedFromMessages" />
+                    :messages="messages" :loading="loading" @send-to-chatList="receivedFromMessages" />
             </div>
         </div>
     </div>
@@ -74,6 +74,7 @@ export default {
         user: Object,
         chats: Object,
         messages: Array,
+        loading: Boolean
     },
 
     data() {

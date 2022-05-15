@@ -43,25 +43,31 @@
                                 <canvas class="hidden bg-gray-600 w-64 h-64 rounded-lg relative"
                                     ref="qr"></canvas>
                             </div>
+                            <template v-if="disconnected">
+                                <h3 class="animate-bounce font-bold text-lg">
+                                    Socket disconnected, please click on model to reconnect and continue...
+                                </h3>
+                            </template>
+                            <template v-else>
+                                <!-- display when user is authenticated/unauthenticated -->
+                                <h3 ref="msg" class="font-bold text-lg">
+                                    Click on profile to proceed...
+                                </h3>
 
-                            <!-- display when user is authenticated/unauthenticated -->
-                            <h3 ref="msg" class="font-bold text-lg">
-                                Click on profile to proceed...
-                            </h3>
+                                <!-- display when checking authentication status -->
+                                <h3 ref="waitMsg" class="hidden animate-bounce font-bold text-lg">
+                                    Please wait while we try to authenticate...
+                                </h3>
 
-                            <!-- display when checking authentication status -->
-                            <h3 ref="waitMsg" class="hidden animate-bounce font-bold text-lg">
-                                Please wait while we try to authenticate...
-                            </h3>
+                                <!-- display when authenticated succesfully -->
+                                <h3 ref="success" class="hidden animate-bounce font-bold text-lg">
+                                    Authenticated successfully, loading chats...
+                                </h3>
 
-                            <!-- display when authenticated succesfully -->
-                            <h3 ref="success" class="hidden animate-bounce font-bold text-lg">
-                                Authenticated successfully, loading chats...
-                            </h3>
-
-                            <h3 ref="failed" class="hidden animate-bounce font-bold text-lg">
-                                Authentication failed, please click on chat to try again...
-                            </h3>
+                                <h3 ref="failed" class="hidden animate-bounce font-bold text-lg">
+                                    Authentication failed, please click on chat to try again...
+                                </h3>
+                            </template>
                         </div>
                     </div>
                 </div>
@@ -75,6 +81,6 @@
 export default {
     name: 'ModelsList',
 
-    props: ['users'],
+    props: ['users', 'disconnected'],
 }
 </script>
