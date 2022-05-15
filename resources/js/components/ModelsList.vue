@@ -19,13 +19,13 @@
                     </div>
 
                     <ul class="overflow-auto h-[32rem]">
-                        <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Accounts</h2>
-                        <li v-for="(u, index) in user" :key="index">
+                        <h2 class="py-2 pb-2 pl-2 text-lg text-gray-600 border-b border-gray-300">Accounts</h2>
+                        <li v-for="(u, index) in users" :key="index">
                             <a @click="$emit('navigate', u)" class="flex items-center px-3 py-2 text-sm transition duration-150
-                                ease-in-out border-y border-gray-300 cursor-pointer
+                                ease-in-out border-b border-gray-300 cursor-pointer
                                 hover:bg-gray-100 focus:outline-none">
                                 <img class="object-cover w-10 h-10 rounded-full"
-                                    src="https://cdn.pixabay.com/photo/2018/09/12/12/14/man-3672010__340.jpg"
+                                    src="/img/avatar.png"
                                     alt="username" />
                                 <div class="w-full">
                                     <span class="ml-5 font-semibold text-gray-600">{{ u.name
@@ -40,20 +40,23 @@
                         <div
                             class="relative w-full p-6 overflow-y-auto h-[32rem] items-center flex flex-col justify-center">
                             <div class="relative w-64">
-                                <canvas
-                                    class="hidden animate-pulse bg-gray-600 w-64 h-64 rounded-lg relative"
+                                <canvas class="hidden bg-gray-600 w-64 h-64 rounded-lg relative"
                                     ref="qr"></canvas>
                             </div>
 
-                            <!-- display when trying to authenticate user -->
-                            <h3 ref="connMsg"
-                                class="hidden animate-bounce mt-2 text-center font-bold text-lg">
-                                Connecting
+                            <!-- display when user is authenticated/unauthenticated -->
+                            <h3 ref="msg" class="font-bold text-lg">
+                                Click on profile to proceed...
                             </h3>
 
-                            <!-- display when user is authenticated/unauthenticated -->
-                            <h3 ref="msg" class="animate-bounce font-bold text-lg">
-                                Click on chat to proceed
+                            <!-- display when checking authentication status -->
+                            <h3 ref="waitMsg" class="hidden animate-bounce font-bold text-lg">
+                                Please wait while we try to authenticate...
+                            </h3>
+
+                            <!-- display when authenticated succesfully -->
+                            <h3 ref="success" class="hidden animate-bounce font-bold text-lg">
+                                Authenticated successfully, loading chats...
                             </h3>
                         </div>
                     </div>
@@ -68,30 +71,6 @@
 export default {
     name: 'ModelsList',
 
-    props: {
-        info: {
-            type: String,
-            required: true,
-        },
-    },
-
-    data() {
-        return {
-            user: [
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333b44dda',
-                    name: 'Jhon Don',
-                },
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333b44dfa',
-                    name: 'Jhonson Don',
-                },
-                {
-                    id: '05edee08-9164-40b3-a3ce-170333bs4dda',
-                    name: 'Jane Doe',
-                }
-            ]
-        }
-    }
+    props: ['users'],
 }
 </script>

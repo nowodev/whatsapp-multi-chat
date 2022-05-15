@@ -1,11 +1,11 @@
 <template>
-    <div v-show="selectedChat" class="md:col-span-2 lg:col-span-3 md:block">
+    <div class="md:col-span-2 lg:col-span-3 md:block">
         <div class="flex flex-col h-full">
             <div class="flex flex-1 flex-col">
                 <div class="relative flex items-center p-3 border-b border-gray-300">
                     <img class="object-cover w-10 h-10 rounded-full"
                         :src="selectedChat?.profilePic"
-                        alt="username" />
+                        :alt="selectedChat?.name" />
                     <span class="block ml-2 font-bold text-gray-600">{{ selectedChat?.name }}</span>
                     <!-- <span class="absolute w-3 h-3 bg-green-600 rounded-full left-10 top-3">
                     </span> -->

@@ -1,6 +1,6 @@
 <template>
     <div v-show="!authenticated">
-        <ModelsList ref="model" :info="info" @navigate="navigate" />
+        <ModelsList ref="model" :users="users" @navigate="navigate" />
     </div>
 
     <div v-show="authenticated">
@@ -22,9 +22,10 @@ const socket = window.SocketIO;
 export default defineComponent({
     components: { ModelsList, ChatList },
 
+    props: ['users'],
+
     data() {
         return {
-            info: '',
             authenticated: false,
             chats: [],
             user: {},
@@ -35,7 +36,6 @@ export default defineComponent({
     created() {
         // populate messages
         socket.on('listMessages', (messages) => {
-            // this.messages.push(message);
             this.messages = messages;
         });
 
@@ -83,23 +83,25 @@ export default defineComponent({
             // show message on home page
             this.$refs.model.$refs.msg.classList.remove('hidden');
             this.$refs.model.$refs.qr.classList.add('hidden');
+            this.$refs.model.$refs.waitMsg.classList.add('hidden');
+            this.$refs.model.$refs.success.classList.add('hidden');
         },
 
         navigate: function (user) {
             // remove message on home page and show barcode
             this.$refs.model.$refs.msg.classList.add('hidden');
-            this.$refs.model.$refs.qr.classList.remove('hidden');
+            this.$refs.model.$refs.waitMsg.classList.remove('hidden');
 
             // instantiate connection
-            if (this.authenticated === false && this.user.id !== user.id) {
+            if (this.authenticated === false && this.user.uuid !== user.uuid) {
                 this.user = user;
 
-                if (this.user.id) {
+                if (this.user.uuid) {
                     socket.emit('destroy')
                 }
 
                 socket.emit('init', {
-                    userId: user.id
+                    userId: user.uuid
                 });
 
                 // listent to qr
@@ -111,8 +113,14 @@ export default defineComponent({
                         }
                     });
 
-                    this.$refs.model.$refs.qr.classList.remove('animate-pulse');
-                    this.$refs.model.$refs.connMsg.classList.remove('hidden');
+                    this.$refs.model.$refs.waitMsg.classList.add('hidden');
+                    this.$refs.model.$refs.qr.classList.remove('hidden');
+                });
+
+                socket.on('authenticated', () => {
+                    this.$refs.model.$refs.success.classList.remove('hidden');
+                    this.$refs.model.$refs.qr.classList.add('hidden');
+                    this.$refs.model.$refs.waitMsg.classList.add('hidden');
                 });
 
                 // update dom

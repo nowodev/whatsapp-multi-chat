@@ -4,7 +4,7 @@
             <div class="min-w-full border rounded grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4">
                 <div class="border-r border-gray-300 md:col-span-1">
                     <div class="mx-3 my-3 flex items-center space-x-5">
-                        <button @click="$emit('auth', user)">
+                        <button @click="back()">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
                                 viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                 <path stroke-linecap="round" stroke-linejoin="round"
@@ -26,12 +26,11 @@
                     </div>
 
                     <ul class="overflow-auto h-[40rem]">
-                        <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
+                        <h2 class="py-2 pb-2 pl-2 text-lg text-gray-600 border-b">Chats</h2>
                         <li v-for="(c, index) in chats" :key="index">
                             <a @click="selectChat(c.id._serialized)"
                                 class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
-                                <img class="object-cover w-10 h-10 rounded-full"
-                                    :src="c.profilePic"
+                                <img class="object-cover w-10 h-10 rounded-full" :src="c.profilePic"
                                     alt="" />
                                 <div class="w-full pb-2">
                                     <div class="flex justify-between">
@@ -53,8 +52,8 @@
 
                 <Welcome v-show="showWelcome" />
 
-                <Messages ref="msg" v-show="!showWelcome" :selected-chat="selectedChat" :messages="messages"
-                    @send-to-chatList="receivedFromMessages" />
+                <Messages ref="msg" v-show="!showWelcome" :selected-chat="selectedChat"
+                    :messages="messages" @send-to-chatList="receivedFromMessages" />
             </div>
         </div>
     </div>
@@ -74,7 +73,7 @@ export default {
     props: {
         user: Object,
         chats: Object,
-        messages: {},
+        messages: Array,
     },
 
     data() {
@@ -85,8 +84,13 @@ export default {
     },
 
     methods: {
+        back: function () {
+            this.showWelcome = true;
+
+            this.$emit('auth', this.user);
+        },
+
         selectChat: function (chatId) {
-            // remove welcome screen
             this.showWelcome = false;
 
             // show messages for each selected chat

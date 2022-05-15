@@ -5,11 +5,11 @@
                 <div class="border-r border-gray-300 md:col-span-1">
                     <div class="mx-3 my-3 flex items-center space-x-5">
                         <Link :href="route('dash', 1)">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                            viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                            <path stroke-linecap="round" stroke-linejoin="round"
-                                d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
-                        </svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round"
+                                    d="M11 15l-3-3m0 0l3-3m-3 3h8M3 12a9 9 0 1118 0 9 9 0 01-18 0z" />
+                            </svg>
                         </Link>
                         <div class="relative text-gray-600 w-full">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-2">
@@ -26,7 +26,7 @@
                     </div>
 
                     <ul class="overflow-auto h-[40rem]">
-                        <h2 class="my-2 mb-2 ml-2 text-lg text-gray-600">Chats</h2>
+                        <h2 class="py-2 pb-2 pl-2 text-lg text-gray-600 border-b">Chats</h2>
                         <li v-for="(c, index) in chats" :key="index">
                             <a @click="selectChat(c.id._serialized)"
                                 class="flex items-center px-3 py-2 text-sm transition duration-150 ease-in-out border-b border-gray-300 cursor-pointer hover:bg-gray-100 focus:outline-none">
@@ -142,44 +142,20 @@ export default {
         };
     },
 
-
-    created() {
-        const socket = io(this.config.IP + ':' + this.config.PORT);
-
-        socket.on('message', (message) => {
-            this.receivedMessages.push(message);
-        });
-
-        // listen to message_ack
-        // socket.on('message_ack', (message) => {
-        //     this.messages.push(message)
-        // });
-
-        socket.on('listMessages', (data) => {
-            // this.messages = data;
-            console.log('List Message: ' + data);
-        });
-
-        // listen to media upload
-        socket.on('media_uploaded', (message) => {
-            console.log('Media: ' + message);
-        });
-    },
-
     methods: {
         selectChat: function (chatId) {
-            const socket = io(this.config.IP + ':' + this.config.PORT);
+            const socket = window.SocketIO;
 
-            const found = this.chats.find(x => x.id._serialized === chatId);
+            const chat = this.chats.find(x => x.id._serialized === chatId);
 
-            this.selectedChat = found;
+            this.selectedChat = chat;
 
             // emit not working
             socket.emit('fetchMessages', { chatId: chatId })
         },
 
         send: function (userId) {
-            const socket = io(this.config.IP + ':' + this.config.PORT);
+            const socket = window.SocketIO;
 
             const file = this.$refs.file.files[0];
 
