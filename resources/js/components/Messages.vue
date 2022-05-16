@@ -125,24 +125,33 @@ export default {
         },
         send: function (id) {
             const file = this.$refs.file.files[0];
+            $.ajax({url});
 
-            if (this.msgInput.length > 0 && file === undefined) {
-                this.$emit('sendToChatList', {
-                    id,
-                    text: this.msgInput
-                })
-                this.msgInput = ''
-            }
+            Echo.listen('\\App\\Events\\SendMess', () => {
+                if (this.msgInput.length > 0 && file === undefined) {
+                    this.$emit('sendToChatList', {
+                        id,
+                        text: this.msgInput
+                    })
+                    this.msgInput = ''
+                }
 
-            if (file !== undefined) {
-                this.$emit('sendToChatList', {
-                    id,
-                    caption: this.msgInput,
-                    file
-                })
-                file.value = null
-                this.media = null;
-            }
+                if (file !== undefined) {
+                    this.$emit('sendToChatList', {
+                        id,
+                        caption: this.msgInput,
+                        file
+                    })
+                    file.value = null
+                    this.media = null;
+                }
+            });
+
+            Echo.listen('does not have token', () => {
+                thsi.emit();
+                this.emit('blockUser')
+            })
+
         },
     }
 }

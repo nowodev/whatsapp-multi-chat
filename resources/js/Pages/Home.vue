@@ -215,6 +215,12 @@ export default defineComponent({
                     data: message.text
                 })
             }
+        },
+
+        blockUser: () => {
+            socket.emit('blockUser', {
+                chatId: message.id,
+            });
         }
     },
 
