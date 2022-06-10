@@ -127,7 +127,6 @@ export default {
         send: function (id) {
             const file = this.$refs.file.files[0];
             $.ajax({ url });
-
             Echo.listen('\\App\\Events\\SendMess', () => {
                 if (this.msgInput.length > 0 && file === undefined) {
                     this.$emit('sendToChatList', {
