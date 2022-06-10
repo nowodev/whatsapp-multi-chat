@@ -1,7 +1,7 @@
-
 # WhatsApp Multi Client Dashboard
 
 Access and Chat from Multiple WhatsApp numbers on one dashboard
+
 ## Run Locally
 
 Clone the project
@@ -15,10 +15,17 @@ Go to the project directory
 ```bash
   cd whatsapp-multi-chat
 ```
+
 Install Composer dependencies
 
 ```bash
   composer install
+```
+
+Add Environment Variables
+
+```bash
+  cp .env.example .env && php artisan key:generate
 ```
 
 Migrate, Seed and Start Server
@@ -30,7 +37,14 @@ Migrate, Seed and Start Server
 Install NPM dependencies
 
 ```bash
-  npm install
+  npm install & npm run dev
+```
+
+or if you want to watch your changes as you develop
+
+```bash
+  npm run hot
+
 ```
 
 Start the Socket.IO/Express server
@@ -38,16 +52,6 @@ Start the Socket.IO/Express server
 ```bash
   node server
 ```
-
-
-## Running Tests
-
-To run tests, run the following command
-
-```bash
-  npm run test
-```
-
 
 ## Tech Stack
 
