@@ -205,9 +205,19 @@ class WhatsAppClient {
             console.log("List Message failed:", e.message);
         }
     }
+    blockUser = async (data) => {
+        try {
+            const chat = await this.client.getChatById(data.chatId);
+            const contact = await chat.getContact();
+
+            // block contact
+            await contact.block();
+        } catch(e) {
+            console.log("Caught exception while blocking user:", e.message);
+        }
+    }
     sendMessage = async (data) => {
         try {
-
             if (data.mimetype) {
                 const extension = mime.extension(data.mimetype);
                 const filePath = `public/storage/downloaded-media/${uuidv4()}.${extension}`;
